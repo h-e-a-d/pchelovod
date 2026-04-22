@@ -1,5 +1,7 @@
 import { I18nPlugin } from "@11ty/eleventy";
 import navigation from "@11ty/eleventy-navigation";
+import rss from "@11ty/eleventy-plugin-rss";
+import sitemap from "@quasibit/eleventy-plugin-sitemap";
 import { year, date, makeI18nFilter } from "./eleventy/filters.js";
 
 export default async function (eleventyConfig) {
@@ -14,6 +16,10 @@ export default async function (eleventyConfig) {
     errorMode: "allow-fallback",
   });
   eleventyConfig.addPlugin(navigation);
+  eleventyConfig.addPlugin(rss);
+  eleventyConfig.addPlugin(sitemap, {
+    sitemap: { hostname: process.env.SITE_URL || "https://pchelovod.tj" },
+  });
 
   eleventyConfig.addFilter("i18n", makeI18nFilter(translations));
   eleventyConfig.addFilter("year", year);

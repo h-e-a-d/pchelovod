@@ -1,0 +1,26 @@
+---
+permalink: /en/feed.xml
+eleventyExcludeFromCollections: true
+metadata:
+  title: Pchelovod — English blog
+  language: en
+  description: Notes on Tajik honey and beekeeping.
+---
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>{{ metadata.title }}</title>
+  <subtitle>{{ metadata.description }}</subtitle>
+  <link href="{{ site.url }}{{ page.url }}" rel="self"/>
+  <link href="{{ site.url }}/en/"/>
+  <updated>{{ collections.postsEn | getNewestCollectionItemDate | dateToRfc3339 }}</updated>
+  <id>{{ site.url }}/en/</id>
+  {% for post in collections.postsEn | reverse %}
+    <entry>
+      <title>{{ post.data.title }}</title>
+      <link href="{{ site.url }}{{ post.url }}"/>
+      <updated>{{ post.data.publishDate | dateToRfc3339 }}</updated>
+      <id>{{ site.url }}{{ post.url }}</id>
+      <summary>{{ post.data.description }}</summary>
+    </entry>
+  {% endfor %}
+</feed>
