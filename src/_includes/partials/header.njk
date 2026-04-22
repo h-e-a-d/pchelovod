@@ -1,0 +1,12 @@
+<header class="site-header">
+  <a href="/{{ locale }}/" class="brand">{{ site.name }}</a>
+  <nav aria-label="Primary">
+    <a href="/{{ locale }}/">{{ "nav.home" | i18n }}</a>
+    <a href="/{{ locale }}/about/">{{ "nav.about" | i18n }}</a>
+    <a href="/{{ locale }}/honey/">{{ "nav.honey" | i18n }}</a>
+    <a href="/{{ locale }}/beehives/">{{ "nav.beehives" | i18n }}</a>
+    <a href="/{{ locale }}/blog/">{{ "nav.blog" | i18n }}</a>
+    <a href="/{{ locale }}/contact/">{{ "nav.contact" | i18n }}</a>
+  </nav>
+  {% include "partials/language-switcher.njk" %}
+</header>

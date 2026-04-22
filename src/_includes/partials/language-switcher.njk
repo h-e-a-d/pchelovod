@@ -1,0 +1,11 @@
+{% set currentPath = page.url | replace('/' + locale + '/', '/') %}
+<nav aria-label="Language switcher" class="lang-switcher">
+  {% for lang in site.locales %}
+    {% set altPath = '/' + lang + currentPath %}
+    {% if lang == locale %}
+      <span aria-current="true" lang="{{ lang }}">{{ ('langNames.' + lang) | i18n }}</span>
+    {% else %}
+      <a href="{{ altPath }}" lang="{{ lang }}" hreflang="{{ lang }}">{{ ('langNames.' + lang) | i18n }}</a>
+    {% endif %}
+  {% endfor %}
+</nav>

@@ -1,6 +1,24 @@
 ---
-layout: layouts/base.njk
-title: Pchelovod
+permalink: /index.html
+eleventyExcludeFromCollections: true
 ---
-<h1>Pchelovod</h1>
-<p>Site is being built.</p>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Pchelovod</title>
+    <meta http-equiv="refresh" content="0; url=/en/">
+    <link rel="canonical" href="{{ site.url }}/en/">
+    <script>
+      (function () {
+        var supported = {{ site.locales | dump | safe }};
+        var nav = (navigator.language || "en").slice(0, 2).toLowerCase();
+        var target = supported.indexOf(nav) !== -1 ? nav : "en";
+        location.replace("/" + target + "/");
+      })();
+    </script>
+  </head>
+  <body>
+    <p>Redirecting… <a href="/en/">English</a> · <a href="/ru/">Русский</a> · <a href="/tg/">Тоҷикӣ</a></p>
+  </body>
+</html>
