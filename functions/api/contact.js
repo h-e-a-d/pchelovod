@@ -15,7 +15,8 @@ export async function onRequestPost({ request, env }) {
 
   if (!name || !email || !message) return json({ ok: false, error: "missing_fields" }, 400);
   if (message.length > 5000) return json({ ok: false, error: "too_long" }, 413);
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ ok: false, error: "bad_email" }, 400);
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
+    return json({ ok: false, error: "bad_email" }, 400);
 
   if (env.RESEND_API_KEY && env.CONTACT_TO_EMAIL) {
     const resp = await fetch("https://api.resend.com/emails", {
@@ -34,17 +35,14 @@ export async function onRequestPost({ request, env }) {
     });
     if (!resp.ok) return json({ ok: false, error: "upstream" }, 502);
   } else if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) {
-    const resp = await fetch(
-      `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: env.TELEGRAM_CHAT_ID,
-          text: `Contact (${locale}) from ${name} <${email}>:\n\n${message}`,
-        }),
-      },
-    );
+    const resp = await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: env.TELEGRAM_CHAT_ID,
+        text: `Contact (${locale}) from ${name} <${email}>:\n\n${message}`,
+      }),
+    });
     if (!resp.ok) return json({ ok: false, error: "upstream" }, 502);
   } else {
     return json({ ok: false, error: "not_configured" }, 500);

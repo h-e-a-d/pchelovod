@@ -1,32 +1,43 @@
 {% set pageUrl = site.url + page.url %}
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#d89b2a">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#d89b2a" />
 
-<title>{{ title }}{% if title != site.name %} · {{ site.name }}{% endif %}</title>
-<meta name="description" content="{{ description or ('home.heroLead' | i18n(locale)) }}">
+<title>{{ title }}{% if title != site.name %}· {{ site.name }}{% endif %}</title>
+<meta name="description" content="{{ description or ('home.heroLead' | i18n(locale)) }}" />
 
-<link rel="canonical" href="{{ pageUrl }}">
+<link rel="canonical" href="{{ pageUrl }}" />
 
 {# hreflang: loop all locales, point at the equivalent path #}
 {% set currentPath = page.url | replace('/' + locale + '/', '/') %}
 {% for lang in site.locales %}
   {% set altPath = '/' + lang + currentPath %}
-  <link rel="alternate" hreflang="{{ lang }}" href="{{ site.url }}{{ altPath }}">
+  <link rel="alternate" hreflang="{{ lang }}" href="{{ site.url }}{{ altPath }}" />
 {% endfor %}
-<link rel="alternate" hreflang="x-default" href="{{ site.url }}/en{{ currentPath }}">
+<link rel="alternate" hreflang="x-default" href="{{ site.url }}/en{{ currentPath }}" />
 
-<meta property="og:type" content="{{ ogType or 'website' }}">
-<meta property="og:site_name" content="{{ site.name }}">
-<meta property="og:locale" content="{{ { en: 'en_US', ru: 'ru_RU', tg: 'tg_TJ' }[locale] }}">
-<meta property="og:title" content="{{ title }}">
-<meta property="og:description" content="{{ description or ('home.heroLead' | i18n(locale)) }}">
-<meta property="og:url" content="{{ pageUrl }}">
-{% if heroImage %}<meta property="og:image" content="{{ site.url }}{{ heroImage }}">{% endif %}
+<meta property="og:type" content="{{ ogType or 'website' }}" />
+<meta property="og:site_name" content="{{ site.name }}" />
+<meta property="og:locale" content="{{ { en: 'en_US', ru: 'ru_RU', tg: 'tg_TJ' }[locale] }}" />
+<meta property="og:title" content="{{ title }}" />
+<meta property="og:description" content="{{ description or ('home.heroLead' | i18n(locale)) }}" />
+<meta property="og:url" content="{{ pageUrl }}" />
+{% if heroImage %}<meta property="og:image" content="{{ site.url }}{{ heroImage }}" />{% endif %}
 
-<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:card" content="summary_large_image" />
 
-<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/noto-sans/noto-sans-cyrillic-ext-wght-normal.woff2" crossorigin>
-<link rel="alternate" type="application/atom+xml" title="{{ site.name }} — {{ locale }}" href="/{{ locale }}/feed.xml">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="/assets/css/main.css">
+<link
+  rel="preload"
+  as="font"
+  type="font/woff2"
+  href="/assets/fonts/noto-sans/noto-sans-cyrillic-ext-wght-normal.woff2"
+  crossorigin
+/>
+<link
+  rel="alternate"
+  type="application/atom+xml"
+  title="{{ site.name }} — {{ locale }}"
+  href="/{{ locale }}/feed.xml"
+/>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="/assets/css/main.css" />

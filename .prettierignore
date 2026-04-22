@@ -1,0 +1,19 @@
+_site/
+node_modules/
+pnpm-lock.yaml
+.eleventy-cache/
+src/assets/images/
+**/*.woff2
+# Plain-text templates — jinja parser mangles their content
+src/robots.njk
+src/llms.njk
+# JSON-LD partials — Nunjucks expressions inside JSON values confuse the parser
+src/_includes/partials/jsonld-*.njk
+# Inline scripts with Nunjucks expressions confuse the parser
+src/index.njk
+src/en/contact.njk
+src/ru/contact.njk
+src/tg/contact.njk
+# Docs with code blocks that Prettier misparses
+CLAUDE.md
+docs/

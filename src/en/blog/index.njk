@@ -5,12 +5,15 @@ permalink: /en/blog/
 layout: layouts/page.njk
 eleventyExcludeFromCollections: true
 ---
+
 <h1>{{ title }}</h1>
 <ul class="post-list">
   {% for post in collections.postsEn | reverse %}
     <li>
       <a href="{{ post.url }}">{{ post.data.title }}</a>
-      <time datetime="{{ post.data.publishDate | date('yyyy-MM-dd') }}">{{ post.data.publishDate | date('yyyy-MM-dd') }}</time>
+      <time datetime="{{ post.data.publishDate | date('yyyy-MM-dd') }}"
+        >{{ post.data.publishDate | date('yyyy-MM-dd') }}</time
+      >
       <p>{{ post.data.description }}</p>
     </li>
   {% endfor %}

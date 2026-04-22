@@ -5,7 +5,8 @@ const valid = {
   inputPath: "./src/en/blog/a.md",
   data: {
     title: "A",
-    description: "A solid 120-character description that is plausibly SEO-ready and not too short for Google to truncate mid-sentence.",
+    description:
+      "A solid 120-character description that is plausibly SEO-ready and not too short for Google to truncate mid-sentence.",
     publishDate: new Date("2026-01-01"),
     heroImage: "/assets/images/a.jpg",
     heroAlt: "A useful alt",

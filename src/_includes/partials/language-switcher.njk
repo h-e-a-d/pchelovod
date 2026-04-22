@@ -5,7 +5,9 @@
     {% if lang == locale %}
       <span aria-current="true" lang="{{ lang }}">{{ ('langNames.' + lang) | i18n }}</span>
     {% else %}
-      <a href="{{ altPath }}" lang="{{ lang }}" hreflang="{{ lang }}">{{ ('langNames.' + lang) | i18n }}</a>
+      <a href="{{ altPath }}" lang="{{ lang }}" hreflang="{{ lang }}"
+        >{{ ('langNames.' + lang) | i18n }}</a
+      >
     {% endif %}
   {% endfor %}
 </nav>

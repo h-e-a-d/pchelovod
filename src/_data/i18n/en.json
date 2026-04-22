@@ -1,6 +1,16 @@
 {
-  "nav": { "home": "Home", "about": "About", "honey": "Honey", "beehives": "Beehives", "blog": "Blog", "contact": "Contact" },
-  "home": { "heroTitle": "Honey from the Tajik mountains", "heroLead": "Raw honey and handmade beehives from the Pamir." },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "honey": "Honey",
+    "beehives": "Beehives",
+    "blog": "Blog",
+    "contact": "Contact"
+  },
+  "home": {
+    "heroTitle": "Honey from the Tajik mountains",
+    "heroLead": "Raw honey and handmade beehives from the Pamir."
+  },
   "footer": { "rights": "All rights reserved." },
   "langNames": { "en": "English", "ru": "Русский", "tg": "Тоҷикӣ" },
   "form": {

@@ -2,15 +2,18 @@ import { I18nPlugin } from "@11ty/eleventy";
 import navigation from "@11ty/eleventy-navigation";
 import rss from "@11ty/eleventy-plugin-rss";
 import sitemap from "@quasibit/eleventy-plugin-sitemap";
+import { readFileSync } from "node:fs";
 import { year, date, makeI18nFilter } from "./eleventy/filters.js";
 import { imageShortcode } from "./eleventy/shortcodes/image.js";
 import { validatePosts } from "./eleventy/hooks/validate-frontmatter.js";
 
-export default async function (eleventyConfig) {
+const loadJson = (path) => JSON.parse(readFileSync(path, "utf8"));
+
+export default function (eleventyConfig) {
   const translations = {
-    en: (await import("./src/_data/i18n/en.json", { with: { type: "json" } })).default,
-    ru: (await import("./src/_data/i18n/ru.json", { with: { type: "json" } })).default,
-    tg: (await import("./src/_data/i18n/tg.json", { with: { type: "json" } })).default,
+    en: loadJson("./src/_data/i18n/en.json"),
+    ru: loadJson("./src/_data/i18n/ru.json"),
+    tg: loadJson("./src/_data/i18n/tg.json"),
   };
 
   eleventyConfig.addPlugin(I18nPlugin, {
@@ -30,12 +33,16 @@ export default async function (eleventyConfig) {
   eleventyConfig.addFilter("date", date);
 
   eleventyConfig.addCollection("_validatePosts", (api) => {
-    const posts = api.getFilteredByGlob(["./src/en/blog/*.md", "./src/ru/blog/*.md", "./src/tg/blog/*.md"]);
+    const posts = api.getFilteredByGlob([
+      "./src/en/blog/*.md",
+      "./src/ru/blog/*.md",
+      "./src/tg/blog/*.md",
+    ]);
     validatePosts(posts);
     return [];
   });
 
-  eleventyConfig.addPassthroughCopy({ "public": "/" });
+  eleventyConfig.addPassthroughCopy({ public: "/" });
   eleventyConfig.addPassthroughCopy({
     "node_modules/@fontsource-variable/noto-sans/files": "assets/fonts/noto-sans",
     "node_modules/@fontsource-variable/noto-serif-display/files": "assets/fonts/noto-serif-display",

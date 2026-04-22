@@ -1,7 +1,12 @@
 import Image from "@11ty/eleventy-img";
 import path from "node:path";
 
-export async function imageShortcode(src, alt, sizes = "(min-width: 1024px) 1024px, 100vw", loading = "lazy") {
+export async function imageShortcode(
+  src,
+  alt,
+  sizes = "(min-width: 1024px) 1024px, 100vw",
+  loading = "lazy",
+) {
   if (alt === undefined) {
     throw new Error(`Missing alt attribute for image: ${src}`);
   }

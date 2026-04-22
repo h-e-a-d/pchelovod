@@ -1,5 +1,12 @@
 {
-  "nav": { "home": "Главная", "about": "О нас", "honey": "Мёд", "beehives": "Ульи", "blog": "Блог", "contact": "Контакты" },
+  "nav": {
+    "home": "Главная",
+    "about": "О нас",
+    "honey": "Мёд",
+    "beehives": "Ульи",
+    "blog": "Блог",
+    "contact": "Контакты"
+  },
   "home": { "heroTitle": "Мёд с таджикских гор", "heroLead": "Сырой мёд и ручные ульи с Памира." },
   "footer": { "rights": "Все права защищены." },
   "langNames": { "en": "English", "ru": "Русский", "tg": "Тоҷикӣ" },

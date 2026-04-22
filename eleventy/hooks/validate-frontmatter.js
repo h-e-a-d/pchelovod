@@ -4,9 +4,12 @@ export function validatePost(item) {
   const { data, inputPath } = item;
   const errs = [];
 
-  if (!data.title || typeof data.title !== "string") errs.push("title is required and must be a string");
+  if (!data.title || typeof data.title !== "string")
+    errs.push("title is required and must be a string");
   if (!data.description || typeof data.description !== "string" || data.description.length < 60) {
-    errs.push("description is required and must be at least 60 characters (ideally 120–160 for SEO)");
+    errs.push(
+      "description is required and must be at least 60 characters (ideally 120–160 for SEO)",
+    );
   }
   if (!(data.publishDate instanceof Date) || Number.isNaN(data.publishDate.getTime())) {
     errs.push("publishDate is required and must parse as a Date");
@@ -16,7 +19,8 @@ export function validatePost(item) {
   if (!ALLOWED_CATEGORIES.includes(data.category)) {
     errs.push(`category must be one of: ${ALLOWED_CATEGORIES.join(", ")}`);
   }
-  if (!data.translationKey || typeof data.translationKey !== "string") errs.push("translationKey is required");
+  if (!data.translationKey || typeof data.translationKey !== "string")
+    errs.push("translationKey is required");
 
   if (errs.length) {
     throw new Error(`[frontmatter] ${inputPath}:\n  - ${errs.join("\n  - ")}`);

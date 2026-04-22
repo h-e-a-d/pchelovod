@@ -6,18 +6,19 @@ metadata:
   language: tg
   description: Навиштаҳо дар бораи асали тоҷикӣ.
 ---
+
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>{{ metadata.title }}</title>
   <subtitle>{{ metadata.description }}</subtitle>
-  <link href="{{ site.url }}{{ page.url }}" rel="self"/>
-  <link href="{{ site.url }}/tg/"/>
+  <link href="{{ site.url }}{{ page.url }}" rel="self" />
+  <link href="{{ site.url }}/tg/" />
   <updated>{{ collections.postsTg | getNewestCollectionItemDate | dateToRfc3339 }}</updated>
   <id>{{ site.url }}/tg/</id>
   {% for post in collections.postsTg | reverse %}
     <entry>
       <title>{{ post.data.title }}</title>
-      <link href="{{ site.url }}{{ post.url }}"/>
+      <link href="{{ site.url }}{{ post.url }}" />
       <updated>{{ post.data.publishDate | dateToRfc3339 }}</updated>
       <id>{{ site.url }}{{ post.url }}</id>
       <summary>{{ post.data.description }}</summary>
