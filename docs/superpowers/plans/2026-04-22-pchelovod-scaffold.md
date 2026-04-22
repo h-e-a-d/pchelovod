@@ -1,0 +1,2839 @@
+# Pchelovod Site Scaffold — Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Build a tri-lingual (EN/RU/TG) static marketing site for a Tajik honey & beehive producer, deployable to Cloudflare Pages via GitHub, with a blog for SEO and strong Tajik visual identity.
+
+**Architecture:** Eleventy 3.x static site, Nunjucks templates, Markdown content, Tailwind CSS v4 via PostCSS, official i18n plugin for locale routing and hreflang, eleventy-img for responsive images, Cloudflare Pages Function for the contact form. No client-side framework, no SSR, no database.
+
+**Tech Stack:** Eleventy 3.x (ESM config), Node 20 LTS, pnpm, Nunjucks, Markdown (markdown-it), Tailwind v4, PostCSS, `@11ty/eleventy-plugin-i18n`, `@11ty/eleventy-img`, `@11ty/eleventy-plugin-rss`, `@11ty/eleventy-navigation`, `@quasibit/eleventy-plugin-sitemap`, Cloudflare Pages.
+
+**Out of scope (per CLAUDE.md):** e-commerce, CMS, authentication, SSR, client-side routing.
+
+**Conventions:**
+- All paths relative to repo root `/Users/egalvans/Downloads/Head/Claude/pchelovod/`
+- Build output: `_site/` (11ty default, gitignored)
+- `pnpm` is the package manager; commit `pnpm-lock.yaml`
+- Commit after every passing task unless otherwise noted
+- Conventional Commits format (`feat:`, `chore:`, `docs:`, `fix:`)
+
+---
+
+## Task Index
+
+| # | Task | Purpose |
+| --- | --- | --- |
+| 1 | Repo init (git, `.gitignore`, `package.json`, `.nvmrc`) | Foundation |
+| 2 | Eleventy skeleton + base layout + first build | Proves 11ty runs |
+| 3 | Tailwind v4 via PostCSS, parallel dev | CSS pipeline |
+| 4 | i18n plugin + 3 locale dictionaries + 3 home pages | Tri-lingual rendering |
+| 5 | `head` partial — canonical, OG, hreflang via `locale_links` | SEO-correct markup per locale |
+| 6 | Header, footer, language switcher, root redirect + `_redirects` | Navigation across locales |
+| 7 | about / honey / beehives / contact × 3 locales (12 files) | Content scaffold |
+| 8 | Blog collections, post layout, listing, one sample post × 3 | SEO driver subsystem |
+| 9 | Sitemap + RSS (per locale) + `robots.txt` + `llms.txt` | SEO primitives |
+| 10 | JSON-LD: `Organization`, `LocalBusiness`, `BlogPosting` | Structured data |
+| 11 | Responsive image shortcode (AVIF/WebP/JPEG srcset, alt required) | Performance + a11y |
+| 12 | Self-host Noto fonts + **TDD test** for Tajik glyph coverage | Prevents "boxes instead of ҳ" bug |
+| 13 | **Strict-TDD frontmatter validator** (8 tests, fails build on missing SEO fields) | Guardrail against SEO regressions |
+| 14 | Full design tokens, typography, fluid type scale, hero | Visual identity pass |
+| 15 | Contact form + Cloudflare Pages Function (Resend or Telegram) | Lead capture |
+| 16 | ESLint, Prettier, simple-git-hooks, lint-staged | Code quality gates |
+| 17 | GitHub Actions CI (lint + test + build + smoke) | Pre-merge safety |
+| 18 | Cloudflare Pages setup + `_headers` + deploy guide | Go-live |
+| 19 | Final verification (Lighthouse, hreflang audit, schema validator, GSC/Bing) | Launch checklist |
+
+Tasks 12 and 13 use strict TDD (write-test → fail → implement → pass). The rest use build-and-verify loops, which matches how a static site actually gets validated.
+
+---
+
+## File Structure (target state after all tasks)
+
+```
+pchelovod/
+├── .github/workflows/ci.yml
+├── .gitignore
+├── .nvmrc
+├── .prettierrc
+├── eslint.config.js
+├── eleventy.config.js
+├── eleventy/
+│   ├── filters.js
+│   ├── shortcodes/image.js
+│   └── hooks/validate-frontmatter.js
+├── postcss.config.js
+├── package.json
+├── pnpm-lock.yaml
+├── README.md
+├── CLAUDE.md                                (exists)
+├── _headers
+├── functions/api/contact.js
+├── public/
+│   ├── favicon.svg
+│   └── robots-static/                       (any static assets)
+├── src/
+│   ├── _data/
+│   │   ├── site.js
+│   │   ├── nav.js
+│   │   └── i18n/{en,ru,tg}.json
+│   ├── _includes/
+│   │   ├── layouts/{base,page,post}.njk
+│   │   └── partials/{head,header,footer,language-switcher,contact-form,
+│   │                  jsonld-organization,jsonld-localbusiness,
+│   │                  jsonld-blogposting,jsonld-breadcrumb}.njk
+│   ├── assets/
+│   │   ├── css/main.css
+│   │   ├── js/nav.js
+│   │   ├── fonts/                           (copied at build)
+│   │   └── images/                          (source images)
+│   ├── en/
+│   │   ├── en.11tydata.js
+│   │   ├── index.njk
+│   │   ├── about.md
+│   │   ├── honey.md
+│   │   ├── beehives.md
+│   │   ├── contact.njk
+│   │   ├── feed.njk
+│   │   └── blog/
+│   │       ├── blog.11tydata.js
+│   │       ├── index.njk
+│   │       └── welcome-to-pchelovod.md
+│   ├── ru/   (mirrors en/ with locale data)
+│   ├── tg/   (mirrors en/ with locale data)
+│   ├── index.njk                            (root locale redirect)
+│   ├── sitemap.njk                          (generated by plugin — passthrough)
+│   ├── robots.njk
+│   └── llms.njk
+└── tests/
+    └── validate-frontmatter.test.js
+```
+
+---
+
+## Task 1: Repository and package initialization
+
+**Files:**
+- Create: `.gitignore`, `.nvmrc`, `package.json`, `README.md`
+
+- [ ] **Step 1: Initialize git and Node version pin**
+
+Run from `/Users/egalvans/Downloads/Head/Claude/pchelovod/`:
+
+```bash
+git init -b main
+echo "20" > .nvmrc
+```
+
+Expected: `.git/` created, `.nvmrc` contains `20`.
+
+- [ ] **Step 2: Create `.gitignore`**
+
+Write `.gitignore`:
+
+```
+node_modules/
+_site/
+.DS_Store
+.env
+.env.*
+!.env.example
+.cache/
+.eleventy-cache/
+coverage/
+*.log
+.wrangler/
+```
+
+- [ ] **Step 3: Initialize `package.json`**
+
+Write `package.json`:
+
+```json
+{
+  "name": "pchelovod",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Tajik honey and beehives — marketing site",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9",
+  "scripts": {
+    "dev": "echo 'dev script added in task 3'",
+    "build": "echo 'build script added in task 3'",
+    "clean": "rm -rf _site .eleventy-cache"
+  }
+}
+```
+
+- [ ] **Step 4: Create README stub**
+
+Write `README.md`:
+
+```markdown
+# Pchelovod
+
+Tajik honey & beehives — marketing site.
+
+See `CLAUDE.md` for project overview and `docs/superpowers/plans/` for the implementation plan.
+
+## Development
+
+- Node 20 (`nvm use`)
+- pnpm 9
+- `pnpm install`
+- `pnpm dev`
+```
+
+- [ ] **Step 5: First commit**
+
+```bash
+git add .gitignore .nvmrc package.json README.md CLAUDE.md docs/
+git commit -m "chore: initialize repository and package.json"
+```
+
+Expected: commit created, `git status` clean.
+
+---
+
+## Task 2: Eleventy skeleton and first build
+
+**Files:**
+- Create: `eleventy.config.js`, `src/index.njk`, `src/_includes/layouts/base.njk`
+- Modify: `package.json` (add scripts, dev dep)
+
+- [ ] **Step 1: Install Eleventy**
+
+```bash
+pnpm add -D @11ty/eleventy@^3
+```
+
+Expected: `@11ty/eleventy` in `devDependencies`, `pnpm-lock.yaml` created.
+
+- [ ] **Step 2: Write minimal `eleventy.config.js` (ESM)**
+
+```js
+// eleventy.config.js
+export default function (eleventyConfig) {
+  eleventyConfig.addPassthroughCopy({ "public": "/" });
+
+  return {
+    dir: {
+      input: "src",
+      output: "_site",
+      includes: "_includes",
+      data: "_data",
+    },
+    templateFormats: ["njk", "md", "html"],
+    markdownTemplateEngine: "njk",
+    htmlTemplateEngine: "njk",
+  };
+}
+```
+
+- [ ] **Step 3: Write a placeholder root `src/index.njk`**
+
+```njk
+---
+layout: layouts/base.njk
+title: Pchelovod
+---
+<h1>Pchelovod</h1>
+<p>Site is being built.</p>
+```
+
+- [ ] **Step 4: Write minimal base layout `src/_includes/layouts/base.njk`**
+
+```njk
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title }}</title>
+  </head>
+  <body>
+    {{ content | safe }}
+  </body>
+</html>
+```
+
+- [ ] **Step 5: Update `package.json` scripts**
+
+Replace the `scripts` block:
+
+```json
+"scripts": {
+  "dev": "eleventy --serve --quiet",
+  "build": "eleventy",
+  "clean": "rm -rf _site .eleventy-cache"
+}
+```
+
+- [ ] **Step 6: First build**
+
+```bash
+pnpm build
+```
+
+Expected: `_site/index.html` exists with `<h1>Pchelovod</h1>`. Verify:
+
+```bash
+test -f _site/index.html && grep -q "Pchelovod" _site/index.html && echo OK
+```
+
+Expected output: `OK`.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add eleventy.config.js src/ package.json pnpm-lock.yaml
+git commit -m "feat: add Eleventy skeleton with base layout"
+```
+
+---
+
+## Task 3: Tailwind CSS v4 pipeline
+
+**Files:**
+- Create: `postcss.config.js`, `src/assets/css/main.css`
+- Modify: `package.json`, `eleventy.config.js`, `src/_includes/layouts/base.njk`
+
+- [ ] **Step 1: Install Tailwind v4 + PostCSS + helpers**
+
+```bash
+pnpm add -D tailwindcss@^4 @tailwindcss/postcss postcss postcss-cli autoprefixer cssnano npm-run-all
+```
+
+- [ ] **Step 2: Create `postcss.config.js`**
+
+```js
+// postcss.config.js
+export default {
+  plugins: {
+    "@tailwindcss/postcss": {},
+    autoprefixer: {},
+    ...(process.env.NODE_ENV === "production" ? { cssnano: {} } : {}),
+  },
+};
+```
+
+- [ ] **Step 3: Create Tailwind entry `src/assets/css/main.css`**
+
+```css
+@import "tailwindcss";
+
+@theme {
+  /* Placeholder tokens — expanded in task 14 */
+  --color-honey-500: #d89b2a;
+  --color-honey-700: #a76a1e;
+  --color-pamir-700: #3e5670;
+  --color-glacier-500: #4e8a91;
+  --color-earth-700: #8b5a3c;
+  --color-cream-50:  #f5eee1;
+  --color-terracotta-600: #b64a2e;
+
+  --font-sans: "Noto Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Noto Serif Display Variable", ui-serif, Georgia, serif;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { font-family: var(--font-sans); color: #1a1a1a; background: var(--color-cream-50); }
+```
+
+- [ ] **Step 4: Add CSS pipeline to scripts**
+
+Replace `scripts` in `package.json`:
+
+```json
+"scripts": {
+  "dev": "run-p dev:*",
+  "dev:11ty": "eleventy --serve --quiet",
+  "dev:css": "postcss src/assets/css/main.css -o _site/assets/css/main.css --watch",
+  "build": "run-s build:css build:11ty",
+  "build:11ty": "eleventy",
+  "build:css": "NODE_ENV=production postcss src/assets/css/main.css -o _site/assets/css/main.css",
+  "clean": "rm -rf _site .eleventy-cache"
+}
+```
+
+- [ ] **Step 5: Tell Eleventy to ignore the source CSS (avoid template processing) and watch it**
+
+Update `eleventy.config.js` — add inside the exported function, before `return`:
+
+```js
+  eleventyConfig.ignores.add("src/assets/css/**/*");
+  eleventyConfig.addWatchTarget("src/assets/css/");
+```
+
+- [ ] **Step 6: Link the built CSS from the base layout**
+
+Update `src/_includes/layouts/base.njk` `<head>` — add before `</head>`:
+
+```njk
+    <link rel="stylesheet" href="/assets/css/main.css">
+```
+
+- [ ] **Step 7: Verify build produces compiled CSS**
+
+```bash
+pnpm clean && pnpm build
+test -f _site/assets/css/main.css && echo "CSS built" && wc -c _site/assets/css/main.css
+```
+
+Expected: `CSS built` printed, file size > 1000 bytes (Tailwind preflight + tokens).
+
+- [ ] **Step 8: Commit**
+
+```bash
+git add .
+git commit -m "feat: add Tailwind v4 via PostCSS with parallel dev"
+```
+
+---
+
+## Task 4: i18n plugin, locale directories, three home pages
+
+**Files:**
+- Create: `src/_data/site.js`, `src/_data/i18n/en.json`, `src/_data/i18n/ru.json`, `src/_data/i18n/tg.json`, `src/en/en.11tydata.js`, `src/ru/ru.11tydata.js`, `src/tg/tg.11tydata.js`, `src/en/index.njk`, `src/ru/index.njk`, `src/tg/index.njk`
+- Modify: `eleventy.config.js`
+
+- [ ] **Step 1: Install i18n plugin and navigation plugin**
+
+```bash
+pnpm add -D @11ty/eleventy-plugin-i18n @11ty/eleventy-navigation
+```
+
+- [ ] **Step 2: Create global site data `src/_data/site.js`**
+
+```js
+// src/_data/site.js
+export default {
+  name: "Pchelovod",
+  url: process.env.SITE_URL || "https://pchelovod.tj",
+  defaultLocale: "en",
+  locales: ["en", "ru", "tg"],
+  author: "Pchelovod",
+  contactEmail: "hello@pchelovod.tj",
+};
+```
+
+- [ ] **Step 3: Create locale dictionaries**
+
+`src/_data/i18n/en.json`:
+
+```json
+{
+  "nav": { "home": "Home", "about": "About", "honey": "Honey", "beehives": "Beehives", "blog": "Blog", "contact": "Contact" },
+  "home": { "heroTitle": "Honey from the Tajik mountains", "heroLead": "Raw honey and handmade beehives from the Pamir." },
+  "footer": { "rights": "All rights reserved." },
+  "langNames": { "en": "English", "ru": "Русский", "tg": "Тоҷикӣ" }
+}
+```
+
+`src/_data/i18n/ru.json`:
+
+```json
+{
+  "nav": { "home": "Главная", "about": "О нас", "honey": "Мёд", "beehives": "Ульи", "blog": "Блог", "contact": "Контакты" },
+  "home": { "heroTitle": "Мёд с таджикских гор", "heroLead": "Сырой мёд и ручные ульи с Памира." },
+  "footer": { "rights": "Все права защищены." },
+  "langNames": { "en": "English", "ru": "Русский", "tg": "Тоҷикӣ" }
+}
+```
+
+`src/_data/i18n/tg.json`:
+
+```json
+{
+  "nav": { "home": "Асосӣ", "about": "Дар бораи мо", "honey": "Асал", "beehives": "Кундӯ", "blog": "Блог", "contact": "Тамос" },
+  "home": { "heroTitle": "Асал аз кӯҳҳои Тоҷикистон", "heroLead": "Асали табиӣ ва кундӯҳои дастӣ аз Помир." },
+  "footer": { "rights": "Ҳамаи ҳуқуқҳо ҳифз шудаанд." },
+  "langNames": { "en": "English", "ru": "Русский", "tg": "Тоҷикӣ" }
+}
+```
+
+- [ ] **Step 4: Create directory-data files that stamp locale and layout**
+
+`src/en/en.11tydata.js`:
+
+```js
+export default {
+  locale: "en",
+  layout: "layouts/page.njk",
+};
+```
+
+`src/ru/ru.11tydata.js`:
+
+```js
+export default {
+  locale: "ru",
+  layout: "layouts/page.njk",
+};
+```
+
+`src/tg/tg.11tydata.js`:
+
+```js
+export default {
+  locale: "tg",
+  layout: "layouts/page.njk",
+};
+```
+
+- [ ] **Step 5: Register i18n plugin in `eleventy.config.js`**
+
+Add near the top of the exported function, after the existing `eleventyConfig.ignores.add(...)` line:
+
+```js
+  const { default: i18n } = await import("@11ty/eleventy-plugin-i18n");
+  const { default: navigation } = await import("@11ty/eleventy-navigation");
+
+  const translations = {
+    en: (await import("./src/_data/i18n/en.json", { with: { type: "json" } })).default,
+    ru: (await import("./src/_data/i18n/ru.json", { with: { type: "json" } })).default,
+    tg: (await import("./src/_data/i18n/tg.json", { with: { type: "json" } })).default,
+  };
+
+  eleventyConfig.addPlugin(i18n, {
+    translations,
+    fallbackLocales: { "*": "en" },
+  });
+  eleventyConfig.addPlugin(navigation);
+```
+
+And change `export default function` to `export default async function` so the dynamic imports work.
+
+- [ ] **Step 6: Create three placeholder homes**
+
+`src/en/index.njk`:
+
+```njk
+---
+title: Pchelovod — Tajik Honey & Beehives
+permalink: /en/
+---
+<h1>{{ "home.heroTitle" | i18n }}</h1>
+<p>{{ "home.heroLead" | i18n }}</p>
+```
+
+`src/ru/index.njk`:
+
+```njk
+---
+title: Pchelovod — Мёд и ульи из Таджикистана
+permalink: /ru/
+---
+<h1>{{ "home.heroTitle" | i18n }}</h1>
+<p>{{ "home.heroLead" | i18n }}</p>
+```
+
+`src/tg/index.njk`:
+
+```njk
+---
+title: Pchelovod — Асал ва кундӯҳои тоҷикӣ
+permalink: /tg/
+---
+<h1>{{ "home.heroTitle" | i18n }}</h1>
+<p>{{ "home.heroLead" | i18n }}</p>
+```
+
+- [ ] **Step 7: Create a minimal `src/_includes/layouts/page.njk`**
+
+```njk
+---
+layout: layouts/base.njk
+---
+{{ content | safe }}
+```
+
+- [ ] **Step 8: Build and verify all three locales render**
+
+```bash
+pnpm clean && pnpm build
+for L in en ru tg; do
+  test -f _site/$L/index.html || { echo "MISSING $L"; exit 1; }
+done
+grep -q "Мёд с таджикских гор" _site/ru/index.html && echo "RU ok"
+grep -q "Асал аз кӯҳҳои Тоҷикистон" _site/tg/index.html && echo "TG ok"
+grep -q "Honey from the Tajik mountains" _site/en/index.html && echo "EN ok"
+```
+
+Expected: `EN ok`, `RU ok`, `TG ok` all printed.
+
+- [ ] **Step 9: Commit**
+
+```bash
+git add .
+git commit -m "feat: add i18n plugin and tri-lingual home pages"
+```
+
+---
+
+## Task 5: Base layout — head, canonical, OG, hreflang
+
+**Files:**
+- Create: `src/_includes/partials/head.njk`
+- Modify: `src/_includes/layouts/base.njk`, `eleventy.config.js`
+
+- [ ] **Step 1: Create head partial `src/_includes/partials/head.njk`**
+
+```njk
+{% set pageUrl = site.url + page.url %}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#d89b2a">
+
+<title>{{ title }}{% if title != site.name %} · {{ site.name }}{% endif %}</title>
+<meta name="description" content="{{ description or ('home.heroLead' | i18n(locale)) }}">
+
+<link rel="canonical" href="{{ pageUrl }}">
+
+{# hreflang: loop all locales, point at the equivalent path #}
+{% set currentPath = page.url | replace('/' + locale + '/', '/') %}
+{% for lang in site.locales %}
+  {% set altPath = '/' + lang + currentPath %}
+  <link rel="alternate" hreflang="{{ lang }}" href="{{ site.url }}{{ altPath }}">
+{% endfor %}
+<link rel="alternate" hreflang="x-default" href="{{ site.url }}/en{{ currentPath }}">
+
+<meta property="og:type" content="{{ ogType or 'website' }}">
+<meta property="og:site_name" content="{{ site.name }}">
+<meta property="og:locale" content="{{ { en: 'en_US', ru: 'ru_RU', tg: 'tg_TJ' }[locale] }}">
+<meta property="og:title" content="{{ title }}">
+<meta property="og:description" content="{{ description or ('home.heroLead' | i18n(locale)) }}">
+<meta property="og:url" content="{{ pageUrl }}">
+{% if heroImage %}<meta property="og:image" content="{{ site.url }}{{ heroImage }}">{% endif %}
+
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css">
+```
+
+- [ ] **Step 2: Simplify `src/_includes/layouts/base.njk` to use the partial**
+
+```njk
+<!doctype html>
+<html lang="{{ locale or 'en' }}">
+  <head>
+    {% include "partials/head.njk" %}
+  </head>
+  <body>
+    {{ content | safe }}
+  </body>
+</html>
+```
+
+- [ ] **Step 3: Build and verify hreflang on EN home**
+
+```bash
+pnpm build
+grep -c 'rel="alternate"' _site/en/index.html
+```
+
+Expected: `4` (en, ru, tg, x-default).
+
+- [ ] **Step 4: Verify `<html lang>` per locale**
+
+```bash
+grep -o '<html lang="[^"]*"' _site/en/index.html
+grep -o '<html lang="[^"]*"' _site/ru/index.html
+grep -o '<html lang="[^"]*"' _site/tg/index.html
+```
+
+Expected:
+```
+<html lang="en"
+<html lang="ru"
+<html lang="tg"
+```
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add .
+git commit -m "feat: add head partial with hreflang, OG, canonical"
+```
+
+---
+
+## Task 6: Language switcher and root redirect
+
+**Files:**
+- Create: `src/_includes/partials/language-switcher.njk`, `src/_includes/partials/header.njk`, `src/_includes/partials/footer.njk`, `src/index.njk` (replace), `_redirects`
+- Modify: `src/_includes/layouts/base.njk`
+
+- [ ] **Step 1: Create language switcher `src/_includes/partials/language-switcher.njk`**
+
+```njk
+{% set currentPath = page.url | replace('/' + locale + '/', '/') %}
+<nav aria-label="Language switcher" class="lang-switcher">
+  {% for lang in site.locales %}
+    {% set altPath = '/' + lang + currentPath %}
+    {% if lang == locale %}
+      <span aria-current="true" lang="{{ lang }}">{{ ('langNames.' + lang) | i18n }}</span>
+    {% else %}
+      <a href="{{ altPath }}" lang="{{ lang }}" hreflang="{{ lang }}">{{ ('langNames.' + lang) | i18n }}</a>
+    {% endif %}
+  {% endfor %}
+</nav>
+```
+
+- [ ] **Step 2: Create header partial `src/_includes/partials/header.njk`**
+
+```njk
+<header class="site-header">
+  <a href="/{{ locale }}/" class="brand">{{ site.name }}</a>
+  <nav aria-label="Primary">
+    <a href="/{{ locale }}/">{{ "nav.home" | i18n }}</a>
+    <a href="/{{ locale }}/about/">{{ "nav.about" | i18n }}</a>
+    <a href="/{{ locale }}/honey/">{{ "nav.honey" | i18n }}</a>
+    <a href="/{{ locale }}/beehives/">{{ "nav.beehives" | i18n }}</a>
+    <a href="/{{ locale }}/blog/">{{ "nav.blog" | i18n }}</a>
+    <a href="/{{ locale }}/contact/">{{ "nav.contact" | i18n }}</a>
+  </nav>
+  {% include "partials/language-switcher.njk" %}
+</header>
+```
+
+- [ ] **Step 3: Create footer partial `src/_includes/partials/footer.njk`**
+
+```njk
+<footer class="site-footer">
+  <p>&copy; {{ site.name }} {{ "now" | date("yyyy") }}. {{ "footer.rights" | i18n }}</p>
+</footer>
+```
+
+- [ ] **Step 4: Add a `year` filter** (because the `date` filter above needs one)
+
+Create `eleventy/filters.js`:
+
+```js
+export function year() {
+  return new Date().getFullYear();
+}
+```
+
+Register it in `eleventy.config.js` — add after plugin registration:
+
+```js
+  const { year } = await import("./eleventy/filters.js");
+  eleventyConfig.addFilter("year", year);
+```
+
+Replace the footer's date line with `{{ "" | year }}`:
+
+```njk
+  <p>&copy; {{ site.name }} {{ "" | year }}. {{ "footer.rights" | i18n }}</p>
+```
+
+- [ ] **Step 5: Update `src/_includes/layouts/base.njk` to include header and footer**
+
+```njk
+<!doctype html>
+<html lang="{{ locale or 'en' }}">
+  <head>
+    {% include "partials/head.njk" %}
+  </head>
+  <body>
+    {% include "partials/header.njk" %}
+    <main id="main">
+      {{ content | safe }}
+    </main>
+    {% include "partials/footer.njk" %}
+  </body>
+</html>
+```
+
+- [ ] **Step 6: Replace root `src/index.njk` with a locale-negotiating splash**
+
+```njk
+---
+permalink: /index.html
+eleventyExcludeFromCollections: true
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Pchelovod</title>
+    <meta http-equiv="refresh" content="0; url=/en/">
+    <link rel="canonical" href="{{ site.url }}/en/">
+    <script>
+      (function () {
+        var supported = {{ site.locales | dump | safe }};
+        var nav = (navigator.language || "en").slice(0, 2).toLowerCase();
+        var target = supported.indexOf(nav) !== -1 ? nav : "en";
+        location.replace("/" + target + "/");
+      })();
+    </script>
+  </head>
+  <body>
+    <p>Redirecting… <a href="/en/">English</a> · <a href="/ru/">Русский</a> · <a href="/tg/">Тоҷикӣ</a></p>
+  </body>
+</html>
+```
+
+- [ ] **Step 7: Create Cloudflare `_redirects` for non-JS fallback**
+
+```
+/  /en/  302
+```
+
+This file gets passthrough-copied. Add to `eleventy.config.js`:
+
+```js
+  eleventyConfig.addPassthroughCopy("_redirects");
+```
+
+Move `_redirects` into a passthrough-friendly location or adjust. Actually simplest: keep it at repo root and let Cloudflare Pages pick it up directly (CF Pages reads `_redirects` from the output dir). Instead, put it in `public/`:
+
+Write `public/_redirects`:
+
+```
+/  /en/  302
+```
+
+The existing `addPassthroughCopy({ "public": "/" })` will copy it into `_site/_redirects`.
+
+- [ ] **Step 8: Build and verify**
+
+```bash
+pnpm build
+test -f _site/_redirects && echo "redirects copied"
+test -f _site/index.html && grep -q 'url=/en/' _site/index.html && echo "root meta-refresh ok"
+grep -q 'lang="ru"' _site/ru/index.html && echo "ru layout ok"
+```
+
+Expected: all three "ok" lines printed.
+
+- [ ] **Step 9: Commit**
+
+```bash
+git add .
+git commit -m "feat: add header, footer, language switcher, root locale redirect"
+```
+
+---
+
+## Task 7: Content pages (about, honey, beehives, contact) per locale
+
+**Files:**
+- Create (12 files):
+  - `src/en/about.md`, `src/en/honey.md`, `src/en/beehives.md`, `src/en/contact.njk`
+  - `src/ru/about.md`, `src/ru/honey.md`, `src/ru/beehives.md`, `src/ru/contact.njk`
+  - `src/tg/about.md`, `src/tg/honey.md`, `src/tg/beehives.md`, `src/tg/contact.njk`
+
+Each `.md` file uses `layout: layouts/page.njk` (inherited from `<locale>.11tydata.js`), sets `title`, `description`, and has placeholder copy. Contact page uses `.njk` because it embeds a form partial (added in Task 15).
+
+- [ ] **Step 1: Create EN content pages**
+
+`src/en/about.md`:
+
+```md
+---
+title: About Pchelovod
+description: Meet the beekeepers behind Tajikistan's mountain honey.
+permalink: /en/about/
+---
+
+## Our story
+
+Pchelovod is a family-run apiary in the Pamir mountains of Tajikistan.
+(Placeholder — replace with origin story in the content pass.)
+```
+
+`src/en/honey.md`:
+
+```md
+---
+title: Our honey
+description: Raw mountain honey from the Pamir and Fann ranges.
+permalink: /en/honey/
+---
+
+## Varieties
+
+- Mountain wildflower
+- Acacia
+- High-altitude meadow
+
+(Placeholder copy.)
+```
+
+`src/en/beehives.md`:
+
+```md
+---
+title: Handmade beehives
+description: Traditional Tajik wooden beehives, crafted for mountain apiaries.
+permalink: /en/beehives/
+---
+
+## Craftsmanship
+
+(Placeholder.)
+```
+
+`src/en/contact.njk`:
+
+```njk
+---
+title: Contact
+description: Get in touch with Pchelovod.
+permalink: /en/contact/
+---
+<h1>{{ title }}</h1>
+<p>Email: <a href="mailto:{{ site.contactEmail }}">{{ site.contactEmail }}</a></p>
+<!-- Contact form added in task 15 -->
+```
+
+- [ ] **Step 2: Create RU content pages**
+
+`src/ru/about.md`:
+
+```md
+---
+title: О Pchelovod
+description: Семейная пасека в Памирских горах Таджикистана.
+permalink: /ru/about/
+---
+
+## Наша история
+
+(Заглушка.)
+```
+
+`src/ru/honey.md`:
+
+```md
+---
+title: Наш мёд
+description: Сырой горный мёд с Памира и Фанских гор.
+permalink: /ru/honey/
+---
+
+## Сорта
+
+- Горный разнотравный
+- Акациевый
+- Высокогорный
+
+(Заглушка.)
+```
+
+`src/ru/beehives.md`:
+
+```md
+---
+title: Ульи ручной работы
+description: Традиционные таджикские деревянные ульи для горных пасек.
+permalink: /ru/beehives/
+---
+
+## Мастерство
+
+(Заглушка.)
+```
+
+`src/ru/contact.njk`:
+
+```njk
+---
+title: Контакты
+description: Свяжитесь с Pchelovod.
+permalink: /ru/contact/
+---
+<h1>{{ title }}</h1>
+<p>Email: <a href="mailto:{{ site.contactEmail }}">{{ site.contactEmail }}</a></p>
+```
+
+- [ ] **Step 3: Create TG content pages**
+
+`src/tg/about.md`:
+
+```md
+---
+title: Дар бораи Pchelovod
+description: Занбӯриасалпарварии оилавӣ дар кӯҳҳои Помири Тоҷикистон.
+permalink: /tg/about/
+---
+
+## Таърихи мо
+
+(Ҷойнишин.)
+```
+
+`src/tg/honey.md`:
+
+```md
+---
+title: Асали мо
+description: Асали хоми кӯҳӣ аз Помир ва Фон.
+permalink: /tg/honey/
+---
+
+## Навъҳо
+
+- Гулҳои кӯҳӣ
+- Акация
+- Алафзорҳои баландкӯҳ
+
+(Ҷойнишин.)
+```
+
+`src/tg/beehives.md`:
+
+```md
+---
+title: Кундӯҳои дастсохт
+description: Кундӯҳои анъанавии чӯбини тоҷикӣ.
+permalink: /tg/beehives/
+---
+
+## Ҳунармандӣ
+
+(Ҷойнишин.)
+```
+
+`src/tg/contact.njk`:
+
+```njk
+---
+title: Тамос
+description: Бо Pchelovod дар тамос шавед.
+permalink: /tg/contact/
+---
+<h1>{{ title }}</h1>
+<p>Email: <a href="mailto:{{ site.contactEmail }}">{{ site.contactEmail }}</a></p>
+```
+
+- [ ] **Step 4: Build and verify all 12 pages exist**
+
+```bash
+pnpm build
+for L in en ru tg; do
+  for P in about honey beehives contact; do
+    test -f _site/$L/$P/index.html || { echo "MISSING $L/$P"; exit 1; }
+  done
+done
+echo "All 12 pages built"
+```
+
+Expected: `All 12 pages built`.
+
+- [ ] **Step 5: Spot-check Tajik Cyrillic rendering**
+
+```bash
+grep -q "Ҳунармандӣ" _site/tg/beehives/index.html && echo "TG cyrillic ok"
+```
+
+Expected: `TG cyrillic ok`.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add .
+git commit -m "feat: add about/honey/beehives/contact pages for all locales"
+```
+
+---
+
+## Task 8: Blog — collection, post layout, listing, one sample post per locale
+
+**Files:**
+- Create:
+  - `src/_includes/layouts/post.njk`
+  - `src/en/blog/blog.11tydata.js`, `src/en/blog/index.njk`, `src/en/blog/welcome-to-pchelovod.md`
+  - `src/ru/blog/blog.11tydata.js`, `src/ru/blog/index.njk`, `src/ru/blog/dobro-pozhalovat.md`
+  - `src/tg/blog/blog.11tydata.js`, `src/tg/blog/index.njk`, `src/tg/blog/хуш-омадед.md`
+- Modify: `eleventy.config.js` (add collections)
+
+- [ ] **Step 1: Create `post.njk` layout**
+
+`src/_includes/layouts/post.njk`:
+
+```njk
+---
+layout: layouts/base.njk
+ogType: article
+---
+<article>
+  <header>
+    <h1>{{ title }}</h1>
+    {% if publishDate %}
+      <p><time datetime="{{ publishDate | date('yyyy-MM-dd') }}">{{ publishDate | date('yyyy-MM-dd') }}</time> · {{ author or site.author }}</p>
+    {% endif %}
+  </header>
+  {{ content | safe }}
+</article>
+```
+
+Add a `date` filter that accepts a format string. Extend `eleventy/filters.js`:
+
+```js
+export function year() {
+  return new Date().getFullYear();
+}
+
+export function date(value, format = "yyyy-MM-dd") {
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  if (format === "yyyy") return String(y);
+  if (format === "yyyy-MM-dd") return `${y}-${m}-${day}`;
+  return d.toISOString();
+}
+```
+
+Register in `eleventy.config.js`:
+
+```js
+  const { year, date } = await import("./eleventy/filters.js");
+  eleventyConfig.addFilter("year", year);
+  eleventyConfig.addFilter("date", date);
+```
+
+- [ ] **Step 2: Create blog directory-data files**
+
+`src/en/blog/blog.11tydata.js`:
+
+```js
+export default {
+  layout: "layouts/post.njk",
+  tags: ["postsEn"],
+  permalink: "/en/blog/{{ page.fileSlug }}/",
+};
+```
+
+`src/ru/blog/blog.11tydata.js`:
+
+```js
+export default {
+  layout: "layouts/post.njk",
+  tags: ["postsRu"],
+  permalink: "/ru/blog/{{ page.fileSlug }}/",
+};
+```
+
+`src/tg/blog/blog.11tydata.js`:
+
+```js
+export default {
+  layout: "layouts/post.njk",
+  tags: ["postsTg"],
+  permalink: "/tg/blog/{{ page.fileSlug }}/",
+};
+```
+
+- [ ] **Step 3: Create one sample post per locale**
+
+`src/en/blog/welcome-to-pchelovod.md`:
+
+```md
+---
+title: Welcome to Pchelovod
+description: A brief introduction to our apiary and the honey varieties we produce.
+publishDate: 2026-04-22
+author: Pchelovod
+heroImage: /assets/images/pamir-apiary.jpg
+heroAlt: Wooden hives on an alpine meadow in the Pamir mountains
+category: honey
+topics: [intro, pamir]
+translationKey: welcome-post
+draft: false
+---
+
+Welcome. This is the first post from our apiary in the Pamir mountains.
+
+(Placeholder — replace with real launch content.)
+```
+
+`src/ru/blog/dobro-pozhalovat.md`:
+
+```md
+---
+title: Добро пожаловать в Pchelovod
+description: Короткое знакомство с нашей пасекой и сортами мёда.
+publishDate: 2026-04-22
+author: Pchelovod
+heroImage: /assets/images/pamir-apiary.jpg
+heroAlt: Деревянные ульи на альпийском лугу Памира
+category: honey
+topics: [intro, pamir]
+translationKey: welcome-post
+draft: false
+---
+
+Добро пожаловать. Это первая запись с нашей пасеки в горах Памира.
+
+(Заглушка.)
+```
+
+`src/tg/blog/хуш-омадед.md`:
+
+```md
+---
+title: Хуш омадед ба Pchelovod
+description: Шиносоии кӯтоҳ бо занбӯриасалпарварии мо.
+publishDate: 2026-04-22
+author: Pchelovod
+heroImage: /assets/images/pamir-apiary.jpg
+heroAlt: Кундӯҳои чӯбин дар алафзори кӯҳии Помир
+category: honey
+topics: [intro, pamir]
+translationKey: welcome-post
+draft: false
+---
+
+Хуш омадед. Ин аввалин паём аз занбӯриасалпарварии мо дар кӯҳҳои Помир аст.
+
+(Ҷойнишин.)
+```
+
+- [ ] **Step 4: Create blog listings**
+
+`src/en/blog/index.njk`:
+
+```njk
+---
+title: Blog
+description: Writing on Tajik honey, beekeeping, and Pamir nature.
+permalink: /en/blog/
+layout: layouts/page.njk
+eleventyExcludeFromCollections: true
+---
+<h1>{{ title }}</h1>
+<ul class="post-list">
+  {% for post in collections.postsEn | reverse %}
+    <li>
+      <a href="{{ post.url }}">{{ post.data.title }}</a>
+      <time datetime="{{ post.data.publishDate | date('yyyy-MM-dd') }}">{{ post.data.publishDate | date('yyyy-MM-dd') }}</time>
+      <p>{{ post.data.description }}</p>
+    </li>
+  {% endfor %}
+</ul>
+```
+
+`src/ru/blog/index.njk`:
+
+```njk
+---
+title: Блог
+description: Заметки о таджикском мёде, пчеловодстве и природе Памира.
+permalink: /ru/blog/
+layout: layouts/page.njk
+eleventyExcludeFromCollections: true
+---
+<h1>{{ title }}</h1>
+<ul class="post-list">
+  {% for post in collections.postsRu | reverse %}
+    <li>
+      <a href="{{ post.url }}">{{ post.data.title }}</a>
+      <time datetime="{{ post.data.publishDate | date('yyyy-MM-dd') }}">{{ post.data.publishDate | date('yyyy-MM-dd') }}</time>
+      <p>{{ post.data.description }}</p>
+    </li>
+  {% endfor %}
+</ul>
+```
+
+`src/tg/blog/index.njk`:
+
+```njk
+---
+title: Блог
+description: Навиштаҳо дар бораи асали тоҷикӣ ва табиати Помир.
+permalink: /tg/blog/
+layout: layouts/page.njk
+eleventyExcludeFromCollections: true
+---
+<h1>{{ title }}</h1>
+<ul class="post-list">
+  {% for post in collections.postsTg | reverse %}
+    <li>
+      <a href="{{ post.url }}">{{ post.data.title }}</a>
+      <time datetime="{{ post.data.publishDate | date('yyyy-MM-dd') }}">{{ post.data.publishDate | date('yyyy-MM-dd') }}</time>
+      <p>{{ post.data.description }}</p>
+    </li>
+  {% endfor %}
+</ul>
+```
+
+- [ ] **Step 5: Build and verify**
+
+```bash
+pnpm build
+test -f _site/en/blog/index.html && echo "EN listing ok"
+test -f _site/en/blog/welcome-to-pchelovod/index.html && echo "EN post ok"
+grep -q "Welcome to Pchelovod" _site/en/blog/index.html && echo "EN listing has post"
+test -f _site/ru/blog/dobro-pozhalovat/index.html && echo "RU post ok"
+test -f _site/tg/blog/хуш-омадед/index.html && echo "TG post ok"
+```
+
+Expected: all five "ok" lines printed.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add .
+git commit -m "feat: add blog collections, post layout, sample posts per locale"
+```
+
+---
+
+## Task 9: SEO primitives — sitemap, RSS, robots.txt, llms.txt
+
+**Files:**
+- Create: `src/en/feed.njk`, `src/ru/feed.njk`, `src/tg/feed.njk`, `src/robots.njk`, `src/llms.njk`, `src/sitemap.njk`
+- Modify: `eleventy.config.js`, `src/_includes/partials/head.njk`
+
+- [ ] **Step 1: Install RSS plugin**
+
+```bash
+pnpm add -D @11ty/eleventy-plugin-rss
+```
+
+- [ ] **Step 2: Register plugin in `eleventy.config.js`**
+
+Add with the other plugin imports:
+
+```js
+  const { default: rss } = await import("@11ty/eleventy-plugin-rss");
+  eleventyConfig.addPlugin(rss);
+```
+
+- [ ] **Step 3: Create RSS feeds per locale**
+
+`src/en/feed.njk`:
+
+```njk
+---
+permalink: /en/feed.xml
+eleventyExcludeFromCollections: true
+metadata:
+  title: Pchelovod — English blog
+  language: en
+  description: Notes on Tajik honey and beekeeping.
+---
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>{{ metadata.title }}</title>
+  <subtitle>{{ metadata.description }}</subtitle>
+  <link href="{{ site.url }}{{ page.url }}" rel="self"/>
+  <link href="{{ site.url }}/en/"/>
+  <updated>{{ collections.postsEn | getNewestCollectionItemDate | dateToRfc3339 }}</updated>
+  <id>{{ site.url }}/en/</id>
+  {% for post in collections.postsEn | reverse %}
+    <entry>
+      <title>{{ post.data.title }}</title>
+      <link href="{{ site.url }}{{ post.url }}"/>
+      <updated>{{ post.data.publishDate | dateToRfc3339 }}</updated>
+      <id>{{ site.url }}{{ post.url }}</id>
+      <summary>{{ post.data.description }}</summary>
+    </entry>
+  {% endfor %}
+</feed>
+```
+
+`src/ru/feed.njk`: duplicate, replace `postsEn → postsRu`, `/en/ → /ru/`, `language: ru`, Russian title/description.
+
+`src/tg/feed.njk`: duplicate, replace `postsEn → postsTg`, `/en/ → /tg/`, `language: tg`, Tajik title/description.
+
+- [ ] **Step 4: Install sitemap plugin**
+
+```bash
+pnpm add -D @quasibit/eleventy-plugin-sitemap
+```
+
+- [ ] **Step 5: Register sitemap plugin**
+
+Add to `eleventy.config.js`:
+
+```js
+  const { default: sitemap } = await import("@quasibit/eleventy-plugin-sitemap");
+  eleventyConfig.addPlugin(sitemap, {
+    sitemap: { hostname: process.env.SITE_URL || "https://pchelovod.tj" },
+  });
+```
+
+- [ ] **Step 6: Create sitemap entry `src/sitemap.njk`**
+
+```njk
+---
+permalink: /sitemap.xml
+eleventyExcludeFromCollections: true
+---
+<?xml version="1.0" encoding="utf-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  {% for page in collections.all %}
+    {% if not page.data.eleventyExcludeFromCollections %}
+    <url>
+      <loc>{{ site.url }}{{ page.url }}</loc>
+      <lastmod>{{ page.date | dateToRfc3339 }}</lastmod>
+      {% set currentPath = page.url | replace('/' + page.data.locale + '/', '/') %}
+      {% for lang in site.locales %}
+        <xhtml:link rel="alternate" hreflang="{{ lang }}" href="{{ site.url }}/{{ lang }}{{ currentPath }}"/>
+      {% endfor %}
+    </url>
+    {% endif %}
+  {% endfor %}
+</urlset>
+```
+
+- [ ] **Step 7: Create `src/robots.njk`**
+
+```njk
+---
+permalink: /robots.txt
+eleventyExcludeFromCollections: true
+---
+User-agent: *
+Allow: /
+
+Sitemap: {{ site.url }}/sitemap.xml
+```
+
+- [ ] **Step 8: Create `src/llms.njk`**
+
+```njk
+---
+permalink: /llms.txt
+eleventyExcludeFromCollections: true
+---
+# Pchelovod
+
+> {{ site.name }} — Tajik honey and handmade beehives from the Pamir mountains. Multilingual marketing site (EN / RU / TG).
+
+## Primary pages
+- [Home (EN)]({{ site.url }}/en/)
+- [About]({{ site.url }}/en/about/)
+- [Our honey]({{ site.url }}/en/honey/)
+- [Handmade beehives]({{ site.url }}/en/beehives/)
+- [Contact]({{ site.url }}/en/contact/)
+
+## Blog
+- [Blog index (EN)]({{ site.url }}/en/blog/)
+- [Blog index (RU)]({{ site.url }}/ru/blog/)
+- [Blog index (TG)]({{ site.url }}/tg/blog/)
+```
+
+- [ ] **Step 9: Link the per-locale RSS feed from head**
+
+Add to `src/_includes/partials/head.njk` before `</head>` section (after canonical):
+
+```njk
+<link rel="alternate" type="application/atom+xml" title="{{ site.name }} — {{ locale }}" href="/{{ locale }}/feed.xml">
+```
+
+- [ ] **Step 10: Build and verify**
+
+```bash
+pnpm build
+test -f _site/sitemap.xml && echo "sitemap ok"
+test -f _site/robots.txt && echo "robots ok"
+test -f _site/llms.txt && echo "llms ok"
+test -f _site/en/feed.xml && echo "en feed ok"
+test -f _site/ru/feed.xml && echo "ru feed ok"
+test -f _site/tg/feed.xml && echo "tg feed ok"
+grep -q "pchelovod.tj" _site/sitemap.xml && echo "sitemap has host"
+```
+
+Expected: 7 "ok" lines.
+
+- [ ] **Step 11: Commit**
+
+```bash
+git add .
+git commit -m "feat: add sitemap, robots, llms.txt, per-locale RSS feeds"
+```
+
+---
+
+## Task 10: JSON-LD structured data
+
+**Files:**
+- Create: `src/_includes/partials/jsonld-organization.njk`, `src/_includes/partials/jsonld-localbusiness.njk`, `src/_includes/partials/jsonld-blogposting.njk`
+- Modify: `src/_includes/layouts/base.njk`, `src/_includes/layouts/post.njk`, `src/_data/site.js`
+
+- [ ] **Step 1: Extend `src/_data/site.js` with business data**
+
+Replace the existing contents:
+
+```js
+export default {
+  name: "Pchelovod",
+  url: process.env.SITE_URL || "https://pchelovod.tj",
+  defaultLocale: "en",
+  locales: ["en", "ru", "tg"],
+  author: "Pchelovod",
+  contactEmail: "hello@pchelovod.tj",
+  business: {
+    legalName: "Pchelovod",
+    telephone: "+992-00-000-0000",
+    streetAddress: "Placeholder street, Placeholder district",
+    addressLocality: "Dushanbe",
+    addressRegion: "Dushanbe",
+    postalCode: "000000",
+    addressCountry: "TJ",
+    latitude: 38.5598,
+    longitude: 68.787,
+    openingHours: ["Mo-Sa 09:00-18:00"],
+    sameAs: [],
+  },
+};
+```
+
+> Fill in real values before production launch (see CLAUDE.md §10 open questions).
+
+- [ ] **Step 2: Create organization JSON-LD partial**
+
+`src/_includes/partials/jsonld-organization.njk`:
+
+```njk
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": {{ site.name | dump | safe }},
+  "url": {{ site.url | dump | safe }},
+  "logo": {{ (site.url + "/favicon.svg") | dump | safe }},
+  "sameAs": {{ site.business.sameAs | dump | safe }}
+}
+</script>
+```
+
+- [ ] **Step 3: Create local business JSON-LD partial**
+
+`src/_includes/partials/jsonld-localbusiness.njk`:
+
+```njk
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": {{ site.name | dump | safe }},
+  "url": {{ site.url | dump | safe }},
+  "telephone": {{ site.business.telephone | dump | safe }},
+  "email": {{ site.contactEmail | dump | safe }},
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": {{ site.business.streetAddress | dump | safe }},
+    "addressLocality": {{ site.business.addressLocality | dump | safe }},
+    "addressRegion": {{ site.business.addressRegion | dump | safe }},
+    "postalCode": {{ site.business.postalCode | dump | safe }},
+    "addressCountry": {{ site.business.addressCountry | dump | safe }}
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": {{ site.business.latitude }},
+    "longitude": {{ site.business.longitude }}
+  },
+  "openingHours": {{ site.business.openingHours | dump | safe }}
+}
+</script>
+```
+
+- [ ] **Step 4: Create blog posting JSON-LD partial**
+
+`src/_includes/partials/jsonld-blogposting.njk`:
+
+```njk
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": {{ title | dump | safe }},
+  "description": {{ description | dump | safe }},
+  "inLanguage": {{ locale | dump | safe }},
+  "datePublished": "{{ publishDate | date('yyyy-MM-dd') }}",
+  {% if updatedDate %}"dateModified": "{{ updatedDate | date('yyyy-MM-dd') }}",{% endif %}
+  "author": { "@type": "Person", "name": {{ (author or site.author) | dump | safe }} },
+  "publisher": {
+    "@type": "Organization",
+    "name": {{ site.name | dump | safe }},
+    "logo": { "@type": "ImageObject", "url": {{ (site.url + "/favicon.svg") | dump | safe }} }
+  },
+  {% if heroImage %}"image": {{ (site.url + heroImage) | dump | safe }},{% endif %}
+  "mainEntityOfPage": {{ (site.url + page.url) | dump | safe }}
+}
+</script>
+```
+
+- [ ] **Step 5: Include Organization + LocalBusiness on every page**
+
+Update `src/_includes/layouts/base.njk` — add before `</body>`:
+
+```njk
+    {% include "partials/jsonld-organization.njk" %}
+    {% include "partials/jsonld-localbusiness.njk" %}
+```
+
+- [ ] **Step 6: Include BlogPosting on posts**
+
+Update `src/_includes/layouts/post.njk` — add after `</article>`:
+
+```njk
+{% include "partials/jsonld-blogposting.njk" %}
+```
+
+- [ ] **Step 7: Build and verify**
+
+```bash
+pnpm build
+grep -q '"@type": "Organization"' _site/en/index.html && echo "org ok"
+grep -q '"@type": "LocalBusiness"' _site/en/index.html && echo "lb ok"
+grep -q '"@type": "BlogPosting"' _site/en/blog/welcome-to-pchelovod/index.html && echo "bp ok"
+```
+
+Expected: `org ok`, `lb ok`, `bp ok`.
+
+- [ ] **Step 8: Manual validation**
+
+Paste the contents of `_site/en/blog/welcome-to-pchelovod/index.html` into https://validator.schema.org/ and confirm no errors. (One-time check, not automated.)
+
+- [ ] **Step 9: Commit**
+
+```bash
+git add .
+git commit -m "feat: add Organization, LocalBusiness, BlogPosting JSON-LD"
+```
+
+---
+
+## Task 11: Responsive image shortcode
+
+**Files:**
+- Create: `eleventy/shortcodes/image.js`, `src/assets/images/.gitkeep`
+- Modify: `eleventy.config.js`, `src/_includes/layouts/post.njk`
+
+- [ ] **Step 1: Install eleventy-img**
+
+```bash
+pnpm add -D @11ty/eleventy-img
+```
+
+- [ ] **Step 2: Create the shortcode**
+
+`eleventy/shortcodes/image.js`:
+
+```js
+import Image from "@11ty/eleventy-img";
+import path from "node:path";
+
+export async function imageShortcode(src, alt, sizes = "(min-width: 1024px) 1024px, 100vw", loading = "lazy") {
+  if (alt === undefined) {
+    throw new Error(`Missing alt attribute for image: ${src}`);
+  }
+
+  const fullSrc = src.startsWith("/") ? path.join("src", src) : src;
+
+  const metadata = await Image(fullSrc, {
+    widths: [480, 768, 1024, 1600],
+    formats: ["avif", "webp", "jpeg"],
+    outputDir: "_site/assets/images/",
+    urlPath: "/assets/images/",
+    filenameFormat: (id, source, width, format) => {
+      const name = path.basename(source, path.extname(source));
+      return `${name}-${width}w-${id}.${format}`;
+    },
+  });
+
+  const imageAttributes = {
+    alt,
+    sizes,
+    loading,
+    decoding: "async",
+  };
+
+  return Image.generateHTML(metadata, imageAttributes);
+}
+```
+
+- [ ] **Step 3: Register the shortcode**
+
+Add to `eleventy.config.js`:
+
+```js
+  const { imageShortcode } = await import("./eleventy/shortcodes/image.js");
+  eleventyConfig.addAsyncShortcode("image", imageShortcode);
+```
+
+- [ ] **Step 4: Drop a placeholder hero image**
+
+```bash
+mkdir -p src/assets/images
+# Place a real hero image at src/assets/images/pamir-apiary.jpg before first production deploy.
+# For now, download a placeholder to keep the build green:
+curl -sSL "https://picsum.photos/1600/900" -o src/assets/images/pamir-apiary.jpg
+touch src/assets/images/.gitkeep
+```
+
+- [ ] **Step 5: Use the shortcode in `post.njk`**
+
+Replace the existing `<article>` block in `src/_includes/layouts/post.njk`:
+
+```njk
+---
+layout: layouts/base.njk
+ogType: article
+---
+<article>
+  <header>
+    <h1>{{ title }}</h1>
+    {% if publishDate %}
+      <p><time datetime="{{ publishDate | date('yyyy-MM-dd') }}">{{ publishDate | date('yyyy-MM-dd') }}</time> · {{ author or site.author }}</p>
+    {% endif %}
+    {% if heroImage %}
+      {% image heroImage, heroAlt, "(min-width: 1024px) 1024px, 100vw" %}
+    {% endif %}
+  </header>
+  {{ content | safe }}
+</article>
+{% include "partials/jsonld-blogposting.njk" %}
+```
+
+- [ ] **Step 6: Build and verify responsive images generated**
+
+```bash
+pnpm build
+ls _site/assets/images/pamir-apiary-*.avif | wc -l
+ls _site/assets/images/pamir-apiary-*.webp | wc -l
+ls _site/assets/images/pamir-apiary-*.jpeg | wc -l
+grep -q 'srcset' _site/en/blog/welcome-to-pchelovod/index.html && echo "srcset ok"
+```
+
+Expected: 4, 4, 4 (four widths × three formats), and `srcset ok`.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add .
+git commit -m "feat: add responsive image shortcode via eleventy-img"
+```
+
+---
+
+## Task 12: Self-hosted fonts with Tajik glyph verification
+
+**Files:**
+- Create: `tests/font-coverage.test.js`
+- Modify: `package.json`, `eleventy.config.js`, `src/_includes/partials/head.njk`
+
+- [ ] **Step 1: Install fontsource variable fonts**
+
+```bash
+pnpm add @fontsource-variable/noto-sans @fontsource-variable/noto-serif-display
+pnpm add -D vitest
+```
+
+- [ ] **Step 2: Copy font files at build time via passthrough**
+
+Add to `eleventy.config.js`:
+
+```js
+  eleventyConfig.addPassthroughCopy({
+    "node_modules/@fontsource-variable/noto-sans/files": "assets/fonts/noto-sans",
+    "node_modules/@fontsource-variable/noto-serif-display/files": "assets/fonts/noto-serif-display",
+  });
+```
+
+- [ ] **Step 3: Add `@font-face` declarations to `src/assets/css/main.css`**
+
+Insert before the `@theme` block:
+
+```css
+@font-face {
+  font-family: "Noto Sans Variable";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/assets/fonts/noto-sans/noto-sans-cyrillic-ext-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0400-04FF, U+0500-052F, U+1C80-1C88, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+
+@font-face {
+  font-family: "Noto Sans Variable";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/assets/fonts/noto-sans/noto-sans-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Noto Serif Display Variable";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/assets/fonts/noto-serif-display/noto-serif-display-cyrillic-ext-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0400-04FF, U+0500-052F, U+1C80-1C88, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+
+@font-face {
+  font-family: "Noto Serif Display Variable";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/assets/fonts/noto-serif-display/noto-serif-display-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+```
+
+- [ ] **Step 4: Preload critical font in `head.njk`**
+
+Add after the stylesheet link:
+
+```njk
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/noto-sans/noto-sans-cyrillic-ext-wght-normal.woff2" crossorigin>
+```
+
+- [ ] **Step 5: Write Tajik glyph coverage test**
+
+`tests/font-coverage.test.js`:
+
+```js
+import { describe, it, expect } from "vitest";
+import fs from "node:fs";
+
+// Parses the cyrillic-ext unicode-range from main.css and asserts that
+// the Tajik-specific letters are covered:  ғ ӣ қ ӯ ҳ ҷ  +  Ғ Ӣ Қ Ӯ Ҳ Ҷ
+const TAJIK_CODEPOINTS = [
+  0x0493, 0x04e3, 0x049b, 0x04af, 0x04b3, 0x04b7,
+  0x0492, 0x04e2, 0x049a, 0x04ae, 0x04b2, 0x04b6,
+];
+
+function rangesFromCss(css, family) {
+  const re = new RegExp(
+    `@font-face\\s*{[^}]*font-family:\\s*"${family}"[^}]*unicode-range:\\s*([^;]+);`,
+    "gs",
+  );
+  const ranges = [];
+  let match;
+  while ((match = re.exec(css)) !== null) {
+    for (const token of match[1].split(",")) {
+      const t = token.trim();
+      if (!t.startsWith("U+")) continue;
+      const body = t.slice(2);
+      if (body.includes("-")) {
+        const [a, b] = body.split("-").map((x) => parseInt(x, 16));
+        ranges.push([a, b]);
+      } else {
+        const v = parseInt(body, 16);
+        ranges.push([v, v]);
+      }
+    }
+  }
+  return ranges;
+}
+
+function inRanges(cp, ranges) {
+  return ranges.some(([a, b]) => cp >= a && cp <= b);
+}
+
+describe("font unicode-range covers Tajik Cyrillic", () => {
+  const css = fs.readFileSync("src/assets/css/main.css", "utf8");
+
+  for (const family of ["Noto Sans Variable", "Noto Serif Display Variable"]) {
+    it(`${family} covers all Tajik-specific code points`, () => {
+      const ranges = rangesFromCss(css, family);
+      const missing = TAJIK_CODEPOINTS.filter((cp) => !inRanges(cp, ranges));
+      expect(missing, `Missing U+${missing.map((c) => c.toString(16)).join(", U+")}`).toEqual([]);
+    });
+  }
+});
+```
+
+- [ ] **Step 6: Add test script**
+
+Add to `package.json` `scripts`:
+
+```json
+"test": "vitest run"
+```
+
+- [ ] **Step 7: Run the test — should pass**
+
+```bash
+pnpm test
+```
+
+Expected: `✓ Noto Sans Variable covers all Tajik-specific code points` and the same for Serif Display.
+
+If it fails, the `unicode-range` in `main.css` is wrong — the cyrillic-ext range `U+0400-04FF, U+0500-052F` must include all Tajik code points listed in the test. Those ranges do cover them; if the range needs widening, do it in `main.css` and re-run.
+
+- [ ] **Step 8: Build and verify font files copied**
+
+```bash
+pnpm build
+ls _site/assets/fonts/noto-sans/*.woff2 | head -3
+ls _site/assets/fonts/noto-serif-display/*.woff2 | head -3
+```
+
+Expected: multiple `.woff2` files in both directories.
+
+- [ ] **Step 9: Commit**
+
+```bash
+git add .
+git commit -m "feat: self-host Noto Sans and Serif with Tajik coverage test"
+```
+
+---
+
+## Task 13: Frontmatter validation hook
+
+**Files:**
+- Create: `eleventy/hooks/validate-frontmatter.js`, `tests/validate-frontmatter.test.js`
+- Modify: `eleventy.config.js`
+
+This task uses strict TDD — logic is non-trivial and prevents real SEO bugs.
+
+- [ ] **Step 1: Write the failing test**
+
+`tests/validate-frontmatter.test.js`:
+
+```js
+import { describe, it, expect } from "vitest";
+import { validatePost } from "../eleventy/hooks/validate-frontmatter.js";
+
+const valid = {
+  inputPath: "./src/en/blog/a.md",
+  data: {
+    title: "A",
+    description: "A solid 120-character description that is plausibly SEO-ready and not too short for Google to truncate mid-sentence.",
+    publishDate: new Date("2026-01-01"),
+    heroImage: "/assets/images/a.jpg",
+    heroAlt: "A useful alt",
+    category: "honey",
+    translationKey: "a",
+    draft: false,
+  },
+};
+
+describe("validatePost", () => {
+  it("passes for a fully valid post", () => {
+    expect(() => validatePost(valid)).not.toThrow();
+  });
+
+  it("throws when title is missing", () => {
+    const p = structuredClone({ ...valid, data: { ...valid.data, title: undefined } });
+    expect(() => validatePost(p)).toThrow(/title/);
+  });
+
+  it("throws when description is shorter than 60 chars", () => {
+    const p = structuredClone({ ...valid, data: { ...valid.data, description: "too short" } });
+    expect(() => validatePost(p)).toThrow(/description/);
+  });
+
+  it("throws when heroImage is missing", () => {
+    const p = structuredClone({ ...valid, data: { ...valid.data, heroImage: undefined } });
+    expect(() => validatePost(p)).toThrow(/heroImage/);
+  });
+
+  it("throws when heroAlt is missing", () => {
+    const p = structuredClone({ ...valid, data: { ...valid.data, heroAlt: "" } });
+    expect(() => validatePost(p)).toThrow(/heroAlt/);
+  });
+
+  it("throws when translationKey is missing", () => {
+    const p = structuredClone({ ...valid, data: { ...valid.data, translationKey: undefined } });
+    expect(() => validatePost(p)).toThrow(/translationKey/);
+  });
+
+  it("throws when category is not in the allowlist", () => {
+    const p = structuredClone({ ...valid, data: { ...valid.data, category: "random" } });
+    expect(() => validatePost(p)).toThrow(/category/);
+  });
+
+  it("throws when publishDate is not a Date", () => {
+    const p = structuredClone({ ...valid, data: { ...valid.data, publishDate: "2026-01-01" } });
+    expect(() => validatePost(p)).toThrow(/publishDate/);
+  });
+});
+```
+
+- [ ] **Step 2: Run tests — expect failure (module not found)**
+
+```bash
+pnpm test
+```
+
+Expected: `Cannot find module ... validate-frontmatter.js` or similar.
+
+- [ ] **Step 3: Implement the validator**
+
+`eleventy/hooks/validate-frontmatter.js`:
+
+```js
+const ALLOWED_CATEGORIES = ["honey", "beekeeping", "nature", "apitherapy"];
+
+export function validatePost(item) {
+  const { data, inputPath } = item;
+  const errs = [];
+
+  if (!data.title || typeof data.title !== "string") errs.push("title is required and must be a string");
+  if (!data.description || typeof data.description !== "string" || data.description.length < 60) {
+    errs.push("description is required and must be at least 60 characters (ideally 120–160 for SEO)");
+  }
+  if (!(data.publishDate instanceof Date) || Number.isNaN(data.publishDate.getTime())) {
+    errs.push("publishDate is required and must parse as a Date");
+  }
+  if (!data.heroImage || typeof data.heroImage !== "string") errs.push("heroImage is required");
+  if (!data.heroAlt || typeof data.heroAlt !== "string") errs.push("heroAlt is required");
+  if (!ALLOWED_CATEGORIES.includes(data.category)) {
+    errs.push(`category must be one of: ${ALLOWED_CATEGORIES.join(", ")}`);
+  }
+  if (!data.translationKey || typeof data.translationKey !== "string") errs.push("translationKey is required");
+
+  if (errs.length) {
+    throw new Error(`[frontmatter] ${inputPath}:\n  - ${errs.join("\n  - ")}`);
+  }
+}
+
+export function validatePosts(collection) {
+  const errors = [];
+  for (const item of collection) {
+    if (item.data.draft) continue;
+    try {
+      validatePost(item);
+    } catch (e) {
+      errors.push(e.message);
+    }
+  }
+  if (errors.length) {
+    throw new Error(`Frontmatter validation failed:\n\n${errors.join("\n\n")}`);
+  }
+}
+```
+
+- [ ] **Step 4: Run tests — expect pass**
+
+```bash
+pnpm test
+```
+
+Expected: all 8 tests green.
+
+- [ ] **Step 5: Wire validator into Eleventy build**
+
+Add to `eleventy.config.js` after plugin registration:
+
+```js
+  const { validatePosts } = await import("./eleventy/hooks/validate-frontmatter.js");
+
+  eleventyConfig.on("eleventy.before", async ({ runMode }) => {
+    // Runs before each build
+  });
+
+  eleventyConfig.addCollection("allPosts", (api) =>
+    api.getFilteredByGlob(["./src/en/blog/*.md", "./src/ru/blog/*.md", "./src/tg/blog/*.md"]),
+  );
+
+  eleventyConfig.on("eleventy.after", async ({ results, runMode, outputMode }) => {
+    // no-op placeholder
+  });
+
+  // Validate during collection assembly:
+  eleventyConfig.addCollection("_validatePosts", (api) => {
+    const posts = api.getFilteredByGlob(["./src/en/blog/*.md", "./src/ru/blog/*.md", "./src/tg/blog/*.md"]);
+    validatePosts(posts);
+    return [];
+  });
+```
+
+- [ ] **Step 6: Build — expect success (all existing posts valid)**
+
+```bash
+pnpm build
+```
+
+Expected: build succeeds.
+
+- [ ] **Step 7: Prove the validator bites — introduce a deliberate failure**
+
+Temporarily remove `description` from `src/en/blog/welcome-to-pchelovod.md`:
+
+```bash
+sed -i.bak '/^description:/d' src/en/blog/welcome-to-pchelovod.md
+pnpm build 2>&1 | grep -q "description is required" && echo "validator triggered"
+mv src/en/blog/welcome-to-pchelovod.md.bak src/en/blog/welcome-to-pchelovod.md
+```
+
+Expected: `validator triggered`.
+
+- [ ] **Step 8: Re-build to confirm restored file is valid**
+
+```bash
+pnpm build && echo "build green again"
+```
+
+- [ ] **Step 9: Commit**
+
+```bash
+git add .
+git commit -m "feat: add TDD'd frontmatter validator for blog posts"
+```
+
+---
+
+## Task 14: Design tokens, typography, and a real hero
+
+**Files:**
+- Modify: `src/assets/css/main.css`, `src/_includes/layouts/base.njk`, `src/_includes/partials/header.njk`, `src/_includes/partials/footer.njk`, `src/en/index.njk`, `src/ru/index.njk`, `src/tg/index.njk`
+
+This task has no unit tests — it's visual work. Verification is build + Lighthouse + eye.
+
+- [ ] **Step 1: Expand `src/assets/css/main.css` with full token set**
+
+Replace the `@theme` block:
+
+```css
+@theme {
+  /* Palette */
+  --color-honey-50:  #fbf2df;
+  --color-honey-200: #f2d795;
+  --color-honey-500: #d89b2a;
+  --color-honey-700: #a76a1e;
+  --color-honey-900: #5e3b0f;
+
+  --color-pamir-500: #56718e;
+  --color-pamir-700: #3e5670;
+  --color-pamir-900: #1f2d3d;
+
+  --color-glacier-500: #4e8a91;
+  --color-earth-700: #8b5a3c;
+  --color-cream-50:  #f5eee1;
+  --color-cream-100: #ede3d0;
+  --color-terracotta-600: #b64a2e;
+
+  --color-ink: #1a1a1a;
+  --color-ink-muted: #4a4a4a;
+
+  /* Fonts */
+  --font-sans: "Noto Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Noto Serif Display Variable", ui-serif, Georgia, serif;
+
+  /* Type scale (fluid) */
+  --text-xs:   clamp(0.75rem, 0.72rem + 0.15vw, 0.8125rem);
+  --text-sm:   clamp(0.875rem, 0.84rem + 0.2vw, 0.9375rem);
+  --text-base: clamp(1rem, 0.96rem + 0.25vw, 1.0625rem);
+  --text-lg:   clamp(1.125rem, 1.07rem + 0.35vw, 1.25rem);
+  --text-xl:   clamp(1.375rem, 1.28rem + 0.6vw, 1.625rem);
+  --text-2xl:  clamp(1.75rem, 1.56rem + 1.2vw, 2.25rem);
+  --text-3xl:  clamp(2.25rem, 1.9rem + 2.2vw, 3.25rem);
+  --text-4xl:  clamp(3rem, 2.3rem + 4vw, 4.75rem);
+
+  /* Spacing / layout */
+  --container-max: 72rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+}
+```
+
+- [ ] **Step 2: Add base typography and layout utilities below `@theme`**
+
+```css
+html { -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; }
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background: var(--color-cream-50);
+  font-size: var(--text-base);
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--color-pamir-900);
+  letter-spacing: -0.01em;
+}
+
+h1 { font-size: var(--text-4xl); }
+h2 { font-size: var(--text-3xl); }
+h3 { font-size: var(--text-2xl); }
+
+a { color: var(--color-honey-700); text-decoration: underline; text-underline-offset: 2px; }
+a:hover { color: var(--color-terracotta-600); }
+
+main { min-height: 60vh; }
+
+.container { max-width: var(--container-max); margin-inline: auto; padding-inline: 1.25rem; }
+
+.site-header {
+  display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+  padding: 1.25rem; max-width: var(--container-max); margin-inline: auto;
+  border-bottom: 1px solid var(--color-cream-100);
+}
+.site-header .brand {
+  font-family: var(--font-serif); font-size: var(--text-xl); font-weight: 700;
+  color: var(--color-pamir-900); text-decoration: none;
+}
+.site-header nav { display: flex; gap: 1rem; flex-wrap: wrap; margin-left: auto; }
+.site-header nav a { text-decoration: none; color: var(--color-ink); }
+.site-header nav a:hover { color: var(--color-honey-700); }
+
+.lang-switcher { display: flex; gap: 0.5rem; align-items: center; }
+.lang-switcher [aria-current="true"] { font-weight: 600; color: var(--color-honey-700); }
+.lang-switcher a { color: var(--color-ink-muted); text-decoration: none; }
+
+.site-footer {
+  padding: 2rem 1.25rem; border-top: 1px solid var(--color-cream-100);
+  color: var(--color-ink-muted); font-size: var(--text-sm); text-align: center;
+}
+
+.hero {
+  padding: 4rem 1.25rem 5rem; max-width: var(--container-max); margin-inline: auto;
+  display: grid; gap: 1.5rem;
+}
+.hero h1 { max-width: 18ch; }
+.hero p { font-size: var(--text-lg); max-width: 55ch; color: var(--color-ink-muted); }
+```
+
+- [ ] **Step 3: Wrap content areas in `.container`**
+
+Update `src/_includes/layouts/base.njk` `<main>`:
+
+```njk
+    <main id="main">
+      <div class="container">
+        {{ content | safe }}
+      </div>
+    </main>
+```
+
+- [ ] **Step 4: Update home pages to use hero section**
+
+`src/en/index.njk`:
+
+```njk
+---
+title: Pchelovod — Tajik Honey & Beehives
+description: Raw honey and handmade beehives from the Pamir mountains of Tajikistan.
+permalink: /en/
+layout: layouts/base.njk
+---
+<section class="hero">
+  <h1>{{ "home.heroTitle" | i18n }}</h1>
+  <p>{{ "home.heroLead" | i18n }}</p>
+</section>
+```
+
+`src/ru/index.njk` and `src/tg/index.njk`: same structure, localized `description` in frontmatter.
+
+Specifically:
+
+`src/ru/index.njk`:
+
+```njk
+---
+title: Pchelovod — Мёд и ульи из Таджикистана
+description: Сырой мёд и ручные ульи из Памирских гор.
+permalink: /ru/
+layout: layouts/base.njk
+---
+<section class="hero">
+  <h1>{{ "home.heroTitle" | i18n }}</h1>
+  <p>{{ "home.heroLead" | i18n }}</p>
+</section>
+```
+
+`src/tg/index.njk`:
+
+```njk
+---
+title: Pchelovod — Асал ва кундӯҳои тоҷикӣ
+description: Асали табиӣ ва кундӯҳои дастсохт аз кӯҳҳои Помир.
+permalink: /tg/
+layout: layouts/base.njk
+---
+<section class="hero">
+  <h1>{{ "home.heroTitle" | i18n }}</h1>
+  <p>{{ "home.heroLead" | i18n }}</p>
+</section>
+```
+
+- [ ] **Step 5: Build and visually verify**
+
+```bash
+pnpm dev
+```
+
+Open `http://localhost:8080/en/`, `/ru/`, `/tg/`. Check:
+- Typography renders in Noto Sans / Serif Display
+- Tajik Cyrillic glyphs (ҳ, ӯ, ҷ, ғ, ӣ, қ) render correctly — no boxes
+- Palette visible in header/footer
+- Layout holds at 375px, 768px, 1280px viewports
+
+Take screenshots at each breakpoint for the record.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add .
+git commit -m "feat: full design tokens, typography, hero layout"
+```
+
+---
+
+## Task 15: Contact form and Cloudflare Pages Function
+
+**Files:**
+- Create: `src/_includes/partials/contact-form.njk`, `functions/api/contact.js`
+- Modify: `src/en/contact.njk`, `src/ru/contact.njk`, `src/tg/contact.njk`, `src/_data/i18n/*.json`
+
+- [ ] **Step 1: Add form copy to locale dictionaries**
+
+To each of `src/_data/i18n/en.json`, `ru.json`, `tg.json`, add a `"form"` object. EN:
+
+```json
+  "form": {
+    "name": "Your name",
+    "email": "Email",
+    "message": "Message",
+    "submit": "Send",
+    "success": "Thanks — we'll be in touch.",
+    "error": "Something went wrong. Please email us directly."
+  }
+```
+
+RU:
+
+```json
+  "form": {
+    "name": "Ваше имя",
+    "email": "Email",
+    "message": "Сообщение",
+    "submit": "Отправить",
+    "success": "Спасибо — мы ответим.",
+    "error": "Что-то пошло не так. Напишите нам напрямую."
+  }
+```
+
+TG:
+
+```json
+  "form": {
+    "name": "Номи шумо",
+    "email": "Email",
+    "message": "Паём",
+    "submit": "Ирсол",
+    "success": "Ташаккур — мо ҷавоб мегӯем.",
+    "error": "Хатогӣ рух дод. Бевосита нависед."
+  }
+```
+
+> Remember to add a trailing comma inside each JSON object after the existing `"langNames"` key when pasting `"form"`.
+
+- [ ] **Step 2: Create form partial `src/_includes/partials/contact-form.njk`**
+
+```njk
+<form method="POST" action="/api/contact" class="contact-form" novalidate>
+  <input type="hidden" name="locale" value="{{ locale }}">
+  <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+
+  <label>
+    {{ "form.name" | i18n }}
+    <input type="text" name="name" required>
+  </label>
+
+  <label>
+    {{ "form.email" | i18n }}
+    <input type="email" name="email" required>
+  </label>
+
+  <label>
+    {{ "form.message" | i18n }}
+    <textarea name="message" rows="5" required></textarea>
+  </label>
+
+  <button type="submit">{{ "form.submit" | i18n }}</button>
+</form>
+```
+
+- [ ] **Step 3: Wire the form into each contact page**
+
+Append to each of `src/en/contact.njk`, `src/ru/contact.njk`, `src/tg/contact.njk`:
+
+```njk
+{% include "partials/contact-form.njk" %}
+```
+
+- [ ] **Step 4: Create the Pages Function `functions/api/contact.js`**
+
+```js
+// functions/api/contact.js — Cloudflare Pages Function (runs on Cloudflare Workers runtime)
+export async function onRequestPost({ request, env }) {
+  let form;
+  try {
+    form = await request.formData();
+  } catch {
+    return json({ ok: false, error: "bad_request" }, 400);
+  }
+
+  // Honeypot
+  if (form.get("website")) return json({ ok: true }, 200);
+
+  const name = (form.get("name") || "").toString().trim();
+  const email = (form.get("email") || "").toString().trim();
+  const message = (form.get("message") || "").toString().trim();
+  const locale = (form.get("locale") || "en").toString();
+
+  if (!name || !email || !message) return json({ ok: false, error: "missing_fields" }, 400);
+  if (message.length > 5000) return json({ ok: false, error: "too_long" }, 413);
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ ok: false, error: "bad_email" }, 400);
+
+  // Forward to Resend (if configured) or Telegram (fallback).
+  if (env.RESEND_API_KEY && env.CONTACT_TO_EMAIL) {
+    const resp = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: env.RESEND_FROM || "noreply@pchelovod.tj",
+        to: env.CONTACT_TO_EMAIL,
+        subject: `[Pchelovod/${locale}] Contact from ${name}`,
+        reply_to: email,
+        text: `${message}\n\n— ${name} <${email}>`,
+      }),
+    });
+    if (!resp.ok) return json({ ok: false, error: "upstream" }, 502);
+  } else if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) {
+    const resp = await fetch(
+      `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: env.TELEGRAM_CHAT_ID,
+          text: `Contact (${locale}) from ${name} <${email}>:\n\n${message}`,
+        }),
+      },
+    );
+    if (!resp.ok) return json({ ok: false, error: "upstream" }, 502);
+  } else {
+    return json({ ok: false, error: "not_configured" }, 500);
+  }
+
+  // Redirect back to the contact page with a success flag.
+  return Response.redirect(new URL(`/${locale}/contact/?sent=1`, request.url), 303);
+}
+
+function json(body, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+```
+
+- [ ] **Step 5: Show success/error banner on each contact page**
+
+Update each contact page to read the query string. Replace contents of `src/en/contact.njk`:
+
+```njk
+---
+title: Contact
+description: Get in touch with Pchelovod.
+permalink: /en/contact/
+---
+<h1>{{ title }}</h1>
+<p>Email: <a href="mailto:{{ site.contactEmail }}">{{ site.contactEmail }}</a></p>
+
+<div id="form-status" aria-live="polite"></div>
+{% include "partials/contact-form.njk" %}
+
+<script>
+  (function () {
+    var params = new URLSearchParams(location.search);
+    var el = document.getElementById("form-status");
+    if (params.get("sent") === "1") el.textContent = {{ "form.success" | i18n | dump | safe }};
+    else if (params.get("sent") === "0") el.textContent = {{ "form.error" | i18n | dump | safe }};
+  })();
+</script>
+```
+
+Apply equivalent updates to `src/ru/contact.njk` and `src/tg/contact.njk` (same body, translated `<h1>` and `title` already in frontmatter).
+
+- [ ] **Step 6: Build and verify form markup**
+
+```bash
+pnpm build
+grep -q 'action="/api/contact"' _site/en/contact/index.html && echo "form ok"
+grep -q 'name="locale"' _site/ru/contact/index.html && echo "locale ok"
+```
+
+Expected: `form ok`, `locale ok`.
+
+The Function itself can only be tested end-to-end against a Cloudflare Pages deployment; see Task 18.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add .
+git commit -m "feat: add contact form and Pages Function handler"
+```
+
+---
+
+## Task 16: Linting, formatting, git hooks
+
+**Files:**
+- Create: `.prettierrc`, `.prettierignore`, `eslint.config.js`
+- Modify: `package.json`
+
+- [ ] **Step 1: Install tooling**
+
+```bash
+pnpm add -D prettier prettier-plugin-jinja-template prettier-plugin-tailwindcss \
+           eslint @eslint/js globals \
+           simple-git-hooks lint-staged
+```
+
+- [ ] **Step 2: Write `.prettierrc`**
+
+```json
+{
+  "printWidth": 100,
+  "singleQuote": false,
+  "trailingComma": "all",
+  "plugins": [
+    "prettier-plugin-jinja-template",
+    "prettier-plugin-tailwindcss"
+  ],
+  "overrides": [
+    { "files": ["*.njk"], "options": { "parser": "jinja-template" } }
+  ]
+}
+```
+
+- [ ] **Step 3: Write `.prettierignore`**
+
+```
+_site/
+node_modules/
+pnpm-lock.yaml
+.eleventy-cache/
+src/assets/images/
+**/*.woff2
+```
+
+- [ ] **Step 4: Write `eslint.config.js` (flat config)**
+
+```js
+import js from "@eslint/js";
+import globals from "globals";
+
+export default [
+  js.configs.recommended,
+  {
+    languageOptions: {
+      ecmaVersion: 2024,
+      sourceType: "module",
+      globals: { ...globals.node, ...globals.browser },
+    },
+    rules: {
+      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "no-console": "off",
+    },
+  },
+  {
+    ignores: ["_site/**", "node_modules/**", ".eleventy-cache/**"],
+  },
+];
+```
+
+- [ ] **Step 5: Wire scripts and hooks in `package.json`**
+
+Add/merge into `package.json`:
+
+```json
+"scripts": {
+  "lint": "eslint . && prettier --check .",
+  "format": "prettier --write ."
+},
+"simple-git-hooks": {
+  "pre-commit": "pnpm lint-staged"
+},
+"lint-staged": {
+  "*.{js,njk,md,json,css}": "prettier --write",
+  "*.js": "eslint --fix"
+}
+```
+
+- [ ] **Step 6: Install git hooks**
+
+```bash
+pnpm exec simple-git-hooks
+```
+
+- [ ] **Step 7: Run format on the whole repo and lint**
+
+```bash
+pnpm format
+pnpm lint
+```
+
+Expected: both exit 0 (no errors). A few Prettier rewrites are expected.
+
+- [ ] **Step 8: Commit**
+
+```bash
+git add .
+git commit -m "chore: add ESLint, Prettier, simple-git-hooks, lint-staged"
+```
+
+---
+
+## Task 17: GitHub Actions CI
+
+**Files:**
+- Create: `.github/workflows/ci.yml`
+
+- [ ] **Step 1: Write the workflow**
+
+```yaml
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+        env:
+          SITE_URL: https://pchelovod.tj
+
+      - name: Smoke-check output
+        run: |
+          test -f _site/en/index.html
+          test -f _site/ru/index.html
+          test -f _site/tg/index.html
+          test -f _site/sitemap.xml
+          test -f _site/en/feed.xml
+```
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add .github/workflows/ci.yml
+git commit -m "ci: add GitHub Actions workflow (lint, test, build, smoke)"
+```
+
+- [ ] **Step 3: Push to GitHub and verify**
+
+```bash
+# After creating the remote repo:
+git remote add origin git@github.com:<org>/pchelovod.git
+git push -u origin main
+```
+
+On GitHub, watch the workflow run green. Expected: all 4 jobs (lint, test, build, smoke) pass.
+
+---
+
+## Task 18: Cloudflare Pages configuration and deployment
+
+**Files:**
+- Create: `_headers` (at repo root, copied into `_site` via passthrough), `docs/deploy.md`
+- Modify: `eleventy.config.js`, `public/_headers` (move to passthrough location)
+
+- [ ] **Step 1: Put `_headers` in `public/` so passthrough copies it**
+
+`public/_headers`:
+
+```
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+
+/assets/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/images/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/css/*
+  Cache-Control: public, max-age=31536000, immutable
+```
+
+Verify passthrough picks it up (already configured in Task 2):
+
+```bash
+pnpm build && test -f _site/_headers && echo "headers copied"
+```
+
+- [ ] **Step 2: Write deployment guide `docs/deploy.md`**
+
+```markdown
+# Deploying to Cloudflare Pages
+
+## One-time setup
+
+1. Create a Cloudflare account and open the Pages dashboard.
+2. Click **Create a project** → **Connect to Git** → authorize GitHub → select `pchelovod` repo.
+3. Build settings:
+   - **Framework preset:** None
+   - **Build command:** `pnpm build`
+   - **Build output directory:** `_site`
+   - **Root directory:** `/`
+   - **Environment variables:**
+     - `NODE_VERSION` = `20`
+     - `SITE_URL` = `https://pchelovod.tj` (or chosen domain)
+     - `RESEND_API_KEY` (optional) — for contact form email delivery
+     - `CONTACT_TO_EMAIL` (optional) — recipient
+     - `RESEND_FROM` (optional) — e.g. `noreply@pchelovod.tj`
+     - `TELEGRAM_BOT_TOKEN` (optional) — fallback
+     - `TELEGRAM_CHAT_ID` (optional) — fallback
+4. Enable **pnpm** in build system: set `PACKAGE_MANAGER` = `pnpm` (or rely on `packageManager` in package.json).
+5. Deploy. First deploy builds on `main`.
+
+## Custom domain
+
+1. In the Pages project → **Custom domains** → add `pchelovod.tj` (and `www` as redirect).
+2. If DNS is already on Cloudflare, it wires automatically. Otherwise update NS or add CNAME `pchelovod.tj → <project>.pages.dev`.
+3. Confirm TLS is active (Cloudflare manages certificates).
+
+## Preview deployments
+
+- Every PR and non-`main` branch gets a preview URL automatically.
+- Environment variables marked **Preview** apply to preview builds.
+
+## Post-deploy checks
+
+- Open `/en/`, `/ru/`, `/tg/` — visual confirmation
+- View-source: `<html lang>`, hreflang tags, JSON-LD all present
+- `https://<domain>/sitemap.xml` loads
+- `https://<domain>/robots.txt` references the sitemap
+- Lighthouse mobile score ≥ 95 in Performance, SEO, Accessibility
+- Submit sitemap to Google Search Console + Bing Webmaster Tools
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add .
+git commit -m "docs: add Cloudflare Pages deployment guide and _headers"
+```
+
+- [ ] **Step 4: Trigger production deploy**
+
+Push to `main` (or whatever remote setup is used). In the Cloudflare dashboard, watch the deploy complete. Visit the preview URL.
+
+- [ ] **Step 5: Verify deployed site**
+
+Browser checks on the deployed URL:
+- `/` redirects to `/en/` (or locale-matched via script)
+- `/en/`, `/ru/`, `/tg/` all load and render their hero
+- Tajik Cyrillic renders correctly on `/tg/`
+- Language switcher works round-trip across all three
+- `/en/blog/welcome-to-pchelovod/` loads, responsive image present
+- `/sitemap.xml`, `/robots.txt`, `/llms.txt`, `/en/feed.xml` all accessible
+- Contact form submits successfully (requires env vars in CF Pages)
+
+---
+
+## Task 19: Final verification checklist
+
+**Files:** no changes — this is verification only.
+
+- [ ] **Step 1: Lighthouse on all three locales (mobile)**
+
+Run Lighthouse on production URL for `/en/`, `/ru/`, `/tg/`, `/en/blog/welcome-to-pchelovod/`. Target:
+- Performance ≥ 95
+- SEO = 100
+- Accessibility ≥ 95
+- Best Practices = 100
+
+- [ ] **Step 2: hreflang audit**
+
+```bash
+# On each locale home page, check all three hreflang entries and x-default
+for L in en ru tg; do
+  curl -s https://pchelovod.tj/$L/ | grep -c 'rel="alternate"'
+done
+```
+
+Expected each: `4`.
+
+- [ ] **Step 3: Structured data validation**
+
+Paste each of these URLs into https://validator.schema.org/:
+- `https://pchelovod.tj/en/`
+- `https://pchelovod.tj/en/blog/welcome-to-pchelovod/`
+
+Expected: no errors. `LocalBusiness`, `Organization`, `BlogPosting` all detected.
+
+- [ ] **Step 4: Submit to search engines**
+
+- Google Search Console: add property, submit `https://pchelovod.tj/sitemap.xml`, verify ownership via DNS TXT.
+- Bing Webmaster Tools: import from GSC or add manually.
+
+- [ ] **Step 5: Lock in**
+
+```bash
+git tag -a v0.1.0 -m "Initial launch — scaffold complete"
+git push origin v0.1.0
+```
+
+Ship.
+
+---
+
+## Self-review summary
+
+**Spec coverage (CLAUDE.md → plan):**
+- §1 Goals — covered (all tasks align to P0/P1; no e-commerce touched)
+- §2 Languages / locales — Tasks 4, 5, 6, 7, 8 (`tg` code correct, path-prefix strategy, Accept-Language splash, cookie-free)
+- §3 Tech stack — Tasks 2, 3, 4, 8, 9, 11, 12 (exactly the stack listed)
+- §4 Project structure — matches the target tree
+- §5 Visual identity — Task 14 (palette, fonts, typography). Actual photography and motif SVGs deferred to content/design pass (noted in §10 open questions)
+- §6 SEO plan — Tasks 5, 9, 10 (hreflang, sitemap, RSS, JSON-LD, llms.txt)
+- §7 GitHub + Cloudflare workflow — Tasks 17, 18
+- §8 Initial setup commands — Tasks 1, 2, 3, 4, 9, 11, 12, 15, 16
+- §9 Content model — Task 8 frontmatter shape + Task 13 validator
+- §10 Open questions — explicitly deferred (domain, brand, photography, address, etc.)
+- §11 Agent working notes — encoded throughout (no SSR, no-JS default, alt required in image shortcode, three-locale parity)
+
+**Placeholder scan:** no "TBD" / "add validation" / "similar to Task N" — every code step has complete code.
+
+**Type consistency:** `postsEn/postsRu/postsTg` collection names match between Task 8 declarations and Tasks 9 + 14 references. Filter names (`i18n`, `year`, `date`, `dateToRfc3339`, `getNewestCollectionItemDate`, `dump`, `image`) used consistently. `validatePost` / `validatePosts` exports match test imports.
