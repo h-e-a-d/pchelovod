@@ -4,6 +4,7 @@ import rss from "@11ty/eleventy-plugin-rss";
 import sitemap from "@quasibit/eleventy-plugin-sitemap";
 import { year, date, makeI18nFilter } from "./eleventy/filters.js";
 import { imageShortcode } from "./eleventy/shortcodes/image.js";
+import { validatePosts } from "./eleventy/hooks/validate-frontmatter.js";
 
 export default async function (eleventyConfig) {
   const translations = {
@@ -27,6 +28,12 @@ export default async function (eleventyConfig) {
   eleventyConfig.addFilter("i18n", makeI18nFilter(translations));
   eleventyConfig.addFilter("year", year);
   eleventyConfig.addFilter("date", date);
+
+  eleventyConfig.addCollection("_validatePosts", (api) => {
+    const posts = api.getFilteredByGlob(["./src/en/blog/*.md", "./src/ru/blog/*.md", "./src/tg/blog/*.md"]);
+    validatePosts(posts);
+    return [];
+  });
 
   eleventyConfig.addPassthroughCopy({ "public": "/" });
   eleventyConfig.addPassthroughCopy({

@@ -1,6 +1,6 @@
 ---
 title: Хуш омадед ба Pchelovod
-description: Шиносоии кӯтоҳ бо занбӯриасалпарварии мо.
+description: Шиносоии кӯтоҳ бо занбӯриасалпарварии оилавии мо дар кӯҳҳои Помир ва навъҳои асали кӯҳии Тоҷикистон.
 publishDate: 2026-04-22
 author: Pchelovod
 heroImage: /assets/images/pamir-apiary.jpg
