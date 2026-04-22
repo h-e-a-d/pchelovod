@@ -9,8 +9,11 @@
   },
   "packageManager": "pnpm@9",
   "scripts": {
-    "dev": "echo 'dev script added in task 3'",
-    "build": "echo 'build script added in task 3'",
+    "dev": "eleventy --serve --quiet",
+    "build": "eleventy",
     "clean": "rm -rf _site .eleventy-cache"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^3.1.5"
   }
 }
