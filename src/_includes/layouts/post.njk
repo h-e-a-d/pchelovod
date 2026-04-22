@@ -8,6 +8,9 @@ ogType: article
     {% if publishDate %}
       <p><time datetime="{{ publishDate | date('yyyy-MM-dd') }}">{{ publishDate | date('yyyy-MM-dd') }}</time> · {{ author or site.author }}</p>
     {% endif %}
+    {% if heroImage %}
+      {% image heroImage, heroAlt, "(min-width: 1024px) 1024px, 100vw" %}
+    {% endif %}
   </header>
   {{ content | safe }}
 </article>
