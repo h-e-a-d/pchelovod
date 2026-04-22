@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+  /* Placeholder tokens — expanded in task 14 */
+  --color-honey-500: #d89b2a;
+  --color-honey-700: #a76a1e;
+  --color-pamir-700: #3e5670;
+  --color-glacier-500: #4e8a91;
+  --color-earth-700: #8b5a3c;
+  --color-cream-50:  #f5eee1;
+  --color-terracotta-600: #b64a2e;
+
+  --font-sans: "Noto Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Noto Serif Display Variable", ui-serif, Georgia, serif;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { font-family: var(--font-sans); color: #1a1a1a; background: var(--color-cream-50); }

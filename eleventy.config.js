@@ -1,6 +1,9 @@
 export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ "public": "/" });
 
+  eleventyConfig.ignores.add("src/assets/css/**/*");
+  eleventyConfig.addWatchTarget("src/assets/css/");
+
   return {
     dir: {
       input: "src",
