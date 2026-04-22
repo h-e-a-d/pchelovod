@@ -1,0 +1,21 @@
+<form method="POST" action="/api/contact" class="contact-form" novalidate>
+  <input type="hidden" name="locale" value="{{ locale }}">
+  <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+
+  <label>
+    {{ "form.name" | i18n }}
+    <input type="text" name="name" required>
+  </label>
+
+  <label>
+    {{ "form.email" | i18n }}
+    <input type="email" name="email" required>
+  </label>
+
+  <label>
+    {{ "form.message" | i18n }}
+    <textarea name="message" rows="5" required></textarea>
+  </label>
+
+  <button type="submit">{{ "form.submit" | i18n }}</button>
+</form>

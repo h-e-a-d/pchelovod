@@ -5,3 +5,15 @@ permalink: /ru/contact/
 ---
 <h1>{{ title }}</h1>
 <p>Email: <a href="mailto:{{ site.contactEmail }}">{{ site.contactEmail }}</a></p>
+
+<div id="form-status" aria-live="polite"></div>
+{% include "partials/contact-form.njk" %}
+
+<script>
+  (function () {
+    var params = new URLSearchParams(location.search);
+    var el = document.getElementById("form-status");
+    if (params.get("sent") === "1") el.textContent = {{ "form.success" | i18n | dump | safe }};
+    else if (params.get("sent") === "0") el.textContent = {{ "form.error" | i18n | dump | safe }};
+  })();
+</script>
