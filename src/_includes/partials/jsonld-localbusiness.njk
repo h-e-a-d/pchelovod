@@ -1,0 +1,24 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": {{ site.name | dump | safe }},
+  "url": {{ site.url | dump | safe }},
+  "telephone": {{ site.business.telephone | dump | safe }},
+  "email": {{ site.contactEmail | dump | safe }},
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": {{ site.business.streetAddress | dump | safe }},
+    "addressLocality": {{ site.business.addressLocality | dump | safe }},
+    "addressRegion": {{ site.business.addressRegion | dump | safe }},
+    "postalCode": {{ site.business.postalCode | dump | safe }},
+    "addressCountry": {{ site.business.addressCountry | dump | safe }}
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": {{ site.business.latitude }},
+    "longitude": {{ site.business.longitude }}
+  },
+  "openingHours": {{ site.business.openingHours | dump | safe }}
+}
+</script>

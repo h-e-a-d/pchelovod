@@ -5,4 +5,17 @@ export default {
   locales: ["en", "ru", "tg"],
   author: "Pchelovod",
   contactEmail: "hello@pchelovod.tj",
+  business: {
+    legalName: "Pchelovod",
+    telephone: "+992-00-000-0000",
+    streetAddress: "Placeholder street, Placeholder district",
+    addressLocality: "Dushanbe",
+    addressRegion: "Dushanbe",
+    postalCode: "000000",
+    addressCountry: "TJ",
+    latitude: 38.5598,
+    longitude: 68.787,
+    openingHours: ["Mo-Sa 09:00-18:00"],
+    sameAs: [],
+  },
 };

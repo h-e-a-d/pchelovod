@@ -1,0 +1,10 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": {{ site.name | dump | safe }},
+  "url": {{ site.url | dump | safe }},
+  "logo": {{ (site.url + "/favicon.svg") | dump | safe }},
+  "sameAs": {{ site.business.sameAs | dump | safe }}
+}
+</script>
