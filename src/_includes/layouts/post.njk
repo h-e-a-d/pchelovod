@@ -1,0 +1,13 @@
+---
+layout: layouts/base.njk
+ogType: article
+---
+<article>
+  <header>
+    <h1>{{ title }}</h1>
+    {% if publishDate %}
+      <p><time datetime="{{ publishDate | date('yyyy-MM-dd') }}">{{ publishDate | date('yyyy-MM-dd') }}</time> · {{ author or site.author }}</p>
+    {% endif %}
+  </header>
+  {{ content | safe }}
+</article>
