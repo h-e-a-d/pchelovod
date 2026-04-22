@@ -6,7 +6,9 @@
   <body>
     {% include "partials/header.njk" %}
     <main id="main">
-      {{ content | safe }}
+      <div class="container">
+        {{ content | safe }}
+      </div>
     </main>
     {% include "partials/footer.njk" %}
     {% include "partials/jsonld-organization.njk" %}
