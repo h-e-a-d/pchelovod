@@ -29,6 +29,10 @@ export default async function (eleventyConfig) {
   eleventyConfig.addFilter("date", date);
 
   eleventyConfig.addPassthroughCopy({ "public": "/" });
+  eleventyConfig.addPassthroughCopy({
+    "node_modules/@fontsource-variable/noto-sans/files": "assets/fonts/noto-sans",
+    "node_modules/@fontsource-variable/noto-serif-display/files": "assets/fonts/noto-serif-display",
+  });
   eleventyConfig.ignores.add("src/assets/css/**/*");
   eleventyConfig.addWatchTarget("src/assets/css/");
 
