@@ -1,6 +1,25 @@
-export default function (eleventyConfig) {
-  eleventyConfig.addPassthroughCopy({ "public": "/" });
+import { I18nPlugin } from "@11ty/eleventy";
+import navigation from "@11ty/eleventy-navigation";
+import { year, date, makeI18nFilter } from "./eleventy/filters.js";
 
+export default async function (eleventyConfig) {
+  const translations = {
+    en: (await import("./src/_data/i18n/en.json", { with: { type: "json" } })).default,
+    ru: (await import("./src/_data/i18n/ru.json", { with: { type: "json" } })).default,
+    tg: (await import("./src/_data/i18n/tg.json", { with: { type: "json" } })).default,
+  };
+
+  eleventyConfig.addPlugin(I18nPlugin, {
+    defaultLanguage: "en",
+    errorMode: "allow-fallback",
+  });
+  eleventyConfig.addPlugin(navigation);
+
+  eleventyConfig.addFilter("i18n", makeI18nFilter(translations));
+  eleventyConfig.addFilter("year", year);
+  eleventyConfig.addFilter("date", date);
+
+  eleventyConfig.addPassthroughCopy({ "public": "/" });
   eleventyConfig.ignores.add("src/assets/css/**/*");
   eleventyConfig.addWatchTarget("src/assets/css/");
 
