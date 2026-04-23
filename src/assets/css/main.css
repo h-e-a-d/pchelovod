@@ -1564,7 +1564,22 @@ body:not(.page-landing) main {
     padding: 1.5rem;
   }
   .honey-grid {
-    grid-template-columns: 1fr;
+    display: flex;
+    grid-template-columns: unset;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    background: transparent;
+    gap: 2px;
+    padding-right: 14%;
+  }
+  .honey-grid::-webkit-scrollbar {
+    display: none;
+  }
+  .honey-card {
+    flex: 0 0 82%;
+    scroll-snap-align: start;
   }
   .site-footer-inner {
     grid-template-columns: 1fr;
