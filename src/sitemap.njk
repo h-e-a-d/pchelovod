@@ -13,14 +13,33 @@ eleventyExcludeFromCollections: true
       <url>
         <loc>{{ site.url }}{{ item.url }}</loc>
         <lastmod>{{ item.date | dateToRfc3339 }}</lastmod>
-        {% set currentPath = item.url | replace('/' + item.data.locale + '/', '/') %}
-        {% for lang in site.locales %}
+        {% if item.data.locale %}
           <xhtml:link
             rel="alternate"
-            hreflang="{{ lang }}"
-            href="{{ site.url }}/{{ lang }}{{ currentPath }}"
+            hreflang="{{ item.data.locale }}"
+            href="{{ site.url }}{{ item.url }}"
           />
-        {% endfor %}
+          {% for link in item.url | locale_links %}
+            <xhtml:link
+              rel="alternate"
+              hreflang="{{ link.lang }}"
+              href="{{ site.url }}{{ link.url }}"
+            />
+          {% endfor %}
+          {% if item.data.locale == 'en' %}
+            <xhtml:link rel="alternate" hreflang="x-default" href="{{ site.url }}{{ item.url }}" />
+          {% else %}
+            {% for link in item.url | locale_links %}
+              {% if link.lang == 'en' %}
+                <xhtml:link
+                  rel="alternate"
+                  hreflang="x-default"
+                  href="{{ site.url }}{{ link.url }}"
+                />
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        {% endif %}
       </url>
     {% endif %}
   {% endfor %}

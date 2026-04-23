@@ -4,6 +4,8 @@ export default {
   defaultLocale: "en",
   locales: ["en", "ru", "tg"],
   author: "Pchelovod",
+  description: "Raw honey and handmade beehives from the Pamir mountains of Tajikistan.",
+  ogImage: "/og/home.webp",
   contactEmail: "hello@pchelovod.tj",
   business: {
     legalName: "Pchelovod",

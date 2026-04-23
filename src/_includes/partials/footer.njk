@@ -1,3 +1,34 @@
 <footer class="site-footer">
-  <p>&copy; {{ site.name }} {{ "" | year }}. {{ "footer.rights" | i18n }}</p>
+  <div class="site-footer-inner">
+    <div class="site-footer-brand">
+      <a href="/{{ locale }}/" class="brand site-footer-brand-name">{{ site.name }}</a>
+      <p class="site-footer-tagline">{{ "footer.tagline" | i18n }}</p>
+      <address class="site-footer-address">
+        {{ site.business.addressLocality }}, {{ site.business.addressCountry }}<br />
+        <a href="mailto:{{ site.contactEmail }}">{{ site.contactEmail }}</a>
+      </address>
+    </div>
+
+    <nav class="site-footer-nav" aria-label="{{ 'footer.navLabel' | i18n }}">
+      <p class="site-footer-col-heading">{{ "nav.about" | i18n }}</p>
+      <a href="/{{ locale }}/about/">{{ "nav.about" | i18n }}</a>
+      <a href="/{{ locale }}/honey/">{{ "nav.honey" | i18n }}</a>
+      <a href="/{{ locale }}/beehives/">{{ "nav.beehives" | i18n }}</a>
+      <a href="/{{ locale }}/blog/">{{ "nav.blog" | i18n }}</a>
+      <a href="/{{ locale }}/contact/">{{ "nav.contact" | i18n }}</a>
+    </nav>
+
+    <div class="site-footer-contact">
+      <p class="site-footer-col-heading">{{ "contact.label" | i18n }}</p>
+      <a href="mailto:{{ site.contactEmail }}" class="site-footer-link"
+        >{{ "contact.emailLabel" | i18n }}</a
+      >
+      <a href="https://t.me/pchelovod" class="site-footer-link" rel="noopener">Telegram</a>
+      <a href="https://wa.me/992900000000" class="site-footer-link" rel="noopener">WhatsApp</a>
+    </div>
+  </div>
+
+  <div class="site-footer-bottom">
+    <p>&copy; {{ site.name }} {{ "" | year }}. {{ "footer.rights" | i18n }}</p>
+  </div>
 </footer>

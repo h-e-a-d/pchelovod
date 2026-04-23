@@ -52,7 +52,14 @@
     "whatsapp": "WhatsApp",
     "emailLabel": "Email"
   },
-  "footer": { "rights": "Все права защищены." },
+  "footer": {
+    "rights": "Все права защищены.",
+    "tagline": "Натуральный мёд и ульи с Памира.",
+    "navLabel": "Навигация"
+  },
+  "a11y": {
+    "skipToContent": "Перейти к содержимому"
+  },
   "langNames": { "en": "English", "ru": "Русский", "tg": "Тоҷикӣ" },
   "form": {
     "name": "Ваше имя",

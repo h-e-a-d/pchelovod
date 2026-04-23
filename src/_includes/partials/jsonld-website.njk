@@ -1,0 +1,16 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": {{ (site.url + "/#website") | dump | safe }},
+  "url": {{ site.url | dump | safe }},
+  "name": {{ site.name | dump | safe }},
+  "description": {{ site.description | dump | safe }},
+  "inLanguage": ["en", "ru", "tg"],
+  "publisher": {
+    "@type": "Organization",
+    "@id": {{ (site.url + "/#organization") | dump | safe }},
+    "name": {{ site.name | dump | safe }}
+  }
+}
+</script>

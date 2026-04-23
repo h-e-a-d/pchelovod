@@ -52,7 +52,14 @@
     "whatsapp": "WhatsApp",
     "emailLabel": "Email"
   },
-  "footer": { "rights": "All rights reserved." },
+  "footer": {
+    "rights": "All rights reserved.",
+    "tagline": "Raw honey and beehives from the Pamir mountains.",
+    "navLabel": "Footer navigation"
+  },
+  "a11y": {
+    "skipToContent": "Skip to content"
+  },
   "langNames": { "en": "English", "ru": "Русский", "tg": "Тоҷикӣ" },
   "form": {
     "name": "Your name",

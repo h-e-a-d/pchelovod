@@ -2,9 +2,21 @@
 {
   "@context": "https://schema.org",
   "@type": "Organization",
+  "@id": {{ (site.url + "/#organization") | dump | safe }},
   "name": {{ site.name | dump | safe }},
+  "description": {{ site.description | dump | safe }},
   "url": {{ site.url | dump | safe }},
-  "logo": {{ (site.url + "/favicon.svg") | dump | safe }},
+  "logo": {
+    "@type": "ImageObject",
+    "url": {{ (site.url + "/favicon.svg") | dump | safe }}
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": {{ site.business.telephone | dump | safe }},
+    "email": {{ site.contactEmail | dump | safe }},
+    "contactType": "customer service",
+    "availableLanguage": ["English", "Russian", "Tajik"]
+  },
   "sameAs": {{ site.business.sameAs | dump | safe }}
 }
 </script>

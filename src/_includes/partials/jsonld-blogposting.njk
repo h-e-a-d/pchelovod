@@ -10,10 +10,14 @@
   "author": { "@type": "Person", "name": {{ (author or site.author) | dump | safe }} },
   "publisher": {
     "@type": "Organization",
+    "@id": {{ (site.url + "/#organization") | dump | safe }},
     "name": {{ site.name | dump | safe }},
     "logo": { "@type": "ImageObject", "url": {{ (site.url + "/favicon.svg") | dump | safe }} }
   },
   {% if heroImage %}"image": {{ (site.url + heroImage) | dump | safe }},{% endif %}
-  "mainEntityOfPage": {{ (site.url + page.url) | dump | safe }}
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": {{ (site.url + page.url) | dump | safe }}
+  }
 }
 </script>

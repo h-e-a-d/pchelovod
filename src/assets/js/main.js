@@ -24,6 +24,14 @@
         nav.classList.remove("is-open");
       }
     });
+    // Close on Escape key, return focus to toggle
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && nav.classList.contains("is-open")) {
+        toggle.setAttribute("aria-expanded", "false");
+        nav.classList.remove("is-open");
+        toggle.focus();
+      }
+    });
   }
 
   // Sticky header: add .scrolled class when page scrolls past threshold

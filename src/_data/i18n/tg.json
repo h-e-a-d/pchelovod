@@ -52,7 +52,14 @@
     "whatsapp": "WhatsApp",
     "emailLabel": "Email"
   },
-  "footer": { "rights": "Ҳамаи ҳуқуқҳо ҳифз шудаанд." },
+  "footer": {
+    "rights": "Ҳамаи ҳуқуқҳо ҳифз шудаанд.",
+    "tagline": "Асали табиӣ ва кундӯҳо аз кӯҳҳои Помир.",
+    "navLabel": "Навигатсия"
+  },
+  "a11y": {
+    "skipToContent": "Ба мӯҳтаво гузаред"
+  },
   "langNames": { "en": "English", "ru": "Русский", "tg": "Тоҷикӣ" },
   "form": {
     "name": "Номи шумо",

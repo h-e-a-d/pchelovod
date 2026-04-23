@@ -161,6 +161,25 @@ a:hover {
   margin-bottom: 1.25rem;
 }
 
+/* ─── Skip-to-content ────────────────────────────────────────────────────── */
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 9999;
+  padding: 0.875rem 1.5rem;
+  background: var(--color-honey-500);
+  color: var(--color-pamir-900);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  text-decoration: none;
+  border-radius: 0 0 4px 0;
+}
+.skip-link:focus {
+  left: 0;
+}
+
 /* ─── Buttons ────────────────────────────────────────────────────────────── */
 
 .btn {
@@ -392,12 +411,12 @@ a:hover {
   flex-direction: column;
   justify-content: center;
   gap: 5px;
-  width: 2.25rem;
-  height: 2.25rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
   border: none;
   background: transparent;
   cursor: pointer;
-  padding: 0.25rem;
+  padding: 0.5rem;
   margin-left: auto;
   border-radius: 2px;
 }
@@ -620,7 +639,7 @@ a:hover {
   font-weight: 600;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(245, 238, 225, 0.45);
+  color: rgba(245, 238, 225, 0.65);
 }
 
 .about-body {
@@ -976,8 +995,6 @@ a:hover {
 }
 .contact-link:hover {
   color: var(--color-honey-500);
-}
-.contact-link:hover {
   text-decoration: none;
 }
 
@@ -1044,7 +1061,8 @@ a:hover {
 }
 .contact-form input:focus,
 .contact-form textarea:focus {
-  outline: none;
+  outline: 2px solid var(--color-honey-500);
+  outline-offset: 1px;
   border-color: var(--color-honey-500);
   background: rgba(255, 255, 255, 0.07);
 }
@@ -1079,11 +1097,99 @@ a:hover {
 
 .site-footer {
   background: #111922;
-  padding: 2rem clamp(1.25rem, 4vw, 2.5rem);
-  color: rgba(245, 238, 225, 0.35);
+  color: rgba(245, 238, 225, 0.6);
+  font-size: var(--text-sm);
+}
+
+.site-footer-inner {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding: 3.5rem clamp(1.25rem, 4vw, 2.5rem) 2.5rem;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: clamp(2rem, 5vw, 4rem);
+}
+
+.site-footer-brand-name {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-cream-50);
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 0.75rem;
+}
+.site-footer-brand-name:hover {
+  color: var(--color-honey-500);
+}
+
+.site-footer-tagline {
+  color: rgba(245, 238, 225, 0.5);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
+}
+
+.site-footer-address {
+  font-style: normal;
   font-size: var(--text-xs);
+  color: rgba(245, 238, 225, 0.4);
+  line-height: 1.7;
+}
+.site-footer-address a {
+  color: rgba(245, 238, 225, 0.55);
+  text-decoration: none;
+}
+.site-footer-address a:hover {
+  color: var(--color-honey-500);
+}
+
+.site-footer-col-heading {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(245, 238, 225, 0.35);
+  margin: 0 0 1rem;
+}
+
+.site-footer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.site-footer-nav a {
+  color: rgba(245, 238, 225, 0.6);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  transition: color 0.15s;
+}
+.site-footer-nav a:hover {
+  color: var(--color-honey-500);
+}
+
+.site-footer-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.site-footer-link {
+  color: rgba(245, 238, 225, 0.6);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  transition: color 0.15s;
+}
+.site-footer-link:hover {
+  color: var(--color-honey-500);
+}
+
+.site-footer-bottom {
+  border-top: 1px solid rgba(245, 238, 225, 0.07);
+  padding: 1.25rem clamp(1.25rem, 4vw, 2.5rem);
   text-align: center;
-  letter-spacing: 0.05em;
+  font-size: var(--text-xs);
+  color: rgba(245, 238, 225, 0.3);
+  letter-spacing: 0.04em;
 }
 
 /* ─── Blog / inner pages (base layout) ──────────────────────────────────── */
@@ -1269,6 +1375,15 @@ body:not(.page-landing) main {
   }
 }
 
+@media (max-width: 900px) {
+  .site-footer-inner {
+    grid-template-columns: 1fr 1fr;
+  }
+  .site-footer-brand {
+    grid-column: 1 / -1;
+  }
+}
+
 @media (max-width: 640px) {
   .nav-toggle {
     display: flex;
@@ -1343,6 +1458,14 @@ body:not(.page-landing) main {
   }
   .honey-grid {
     grid-template-columns: 1fr;
+  }
+  .site-footer-inner {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding-bottom: 1.5rem;
+  }
+  .site-footer-brand {
+    grid-column: auto;
   }
 }
 

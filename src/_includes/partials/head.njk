@@ -1,4 +1,6 @@
 {% set pageUrl = site.url + page.url %}
+{% set ogImage = heroImage or site.ogImage %}
+{% set ogImageUrl = site.url + ogImage if ogImage else "" %}
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="theme-color" content="#d89b2a" />
@@ -8,13 +10,23 @@
 
 <link rel="canonical" href="{{ pageUrl }}" />
 
-{# hreflang: loop all locales, point at the equivalent path #}
-{% set currentPath = page.url | replace('/' + locale + '/', '/') %}
-{% for lang in site.locales %}
-  {% set altPath = '/' + lang + currentPath %}
-  <link rel="alternate" hreflang="{{ lang }}" href="{{ site.url }}{{ altPath }}" />
-{% endfor %}
-<link rel="alternate" hreflang="x-default" href="{{ site.url }}/en{{ currentPath }}" />
+{# hreflang: locale_links filter correctly resolves translationKey for blog posts with different slugs #}
+{% if locale %}
+  <link rel="alternate" hreflang="{{ locale }}" href="{{ pageUrl }}" />
+  {% set otherLocaleLinks = page.url | locale_links %}
+  {% for link in otherLocaleLinks %}
+    <link rel="alternate" hreflang="{{ link.lang }}" href="{{ site.url }}{{ link.url }}" />
+  {% endfor %}
+  {% if locale == 'en' %}
+    <link rel="alternate" hreflang="x-default" href="{{ pageUrl }}" />
+  {% else %}
+    {% for link in otherLocaleLinks %}
+      {% if link.lang == 'en' %}
+        <link rel="alternate" hreflang="x-default" href="{{ site.url }}{{ link.url }}" />
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endif %}
 
 <meta property="og:type" content="{{ ogType or 'website' }}" />
 <meta property="og:site_name" content="{{ site.name }}" />
@@ -22,10 +34,23 @@
 <meta property="og:title" content="{{ title }}" />
 <meta property="og:description" content="{{ description or ('home.heroLead' | i18n(locale)) }}" />
 <meta property="og:url" content="{{ pageUrl }}" />
-{% if heroImage %}<meta property="og:image" content="{{ site.url }}{{ heroImage }}" />{% endif %}
+{% if ogImageUrl %}
+  <meta property="og:image" content="{{ ogImageUrl }}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+{% endif %}
 
 <meta name="twitter:card" content="summary_large_image" />
+{% if ogImageUrl %}<meta name="twitter:image" content="{{ ogImageUrl }}" />{% endif %}
 
+{# Noto Serif Display first: it renders the hero H1 (LCP element) #}
+<link
+  rel="preload"
+  as="font"
+  type="font/woff2"
+  href="/assets/fonts/noto-serif-display/noto-serif-display-cyrillic-ext-wght-normal.woff2"
+  crossorigin
+/>
 <link
   rel="preload"
   as="font"
@@ -33,11 +58,13 @@
   href="/assets/fonts/noto-sans/noto-sans-cyrillic-ext-wght-normal.woff2"
   crossorigin
 />
-<link
-  rel="alternate"
-  type="application/atom+xml"
-  title="{{ site.name }} — {{ locale }}"
-  href="/{{ locale }}/feed.xml"
-/>
+{% if locale %}
+  <link
+    rel="alternate"
+    type="application/atom+xml"
+    title="{{ site.name }} — {{ locale }}"
+    href="/{{ locale }}/feed.xml"
+  />
+{% endif %}
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="stylesheet" href="/assets/css/main.css" />

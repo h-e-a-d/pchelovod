@@ -4,11 +4,21 @@
     {% include "partials/head.njk" %}
   </head>
   <body class="page-landing">
+    <a class="skip-link" href="#main">{{ "a11y.skipToContent" | i18n }}</a>
     {% include "partials/header.njk" %}
     <main id="main">{{ content | safe }}</main>
     {% include "partials/footer.njk" %}
     {% include "partials/jsonld-organization.njk" %}
     {% include "partials/jsonld-localbusiness.njk" %}
+    {% include "partials/jsonld-website.njk" %}
+    <noscript
+      ><style>
+        .reveal {
+          opacity: 1;
+          transform: none;
+        }
+      </style></noscript
+    >
     <script src="/assets/js/main.js" defer></script>
   </body>
 </html>
