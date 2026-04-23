@@ -7,6 +7,9 @@ layout: layouts/landing.njk
 
 {# ── Hero ──────────────────────────────────────────────────── #}
 <section id="home" class="hero-section" aria-label="Асосӣ">
+  <div class="hero-photo" aria-hidden="true">
+    {% image "/assets/images/hero-pamir-mountains.webp", "", "100vw", "eager" %}
+  </div>
   <div class="hero-bg-blob" aria-hidden="true"></div>
   <div class="hero-inner">
     <div class="hero-content">
@@ -18,12 +21,8 @@ layout: layouts/landing.njk
       <p class="hero-lead">{{ "home.heroLead" | i18n }}</p>
       <div class="hero-actions">
         <a href="#honey" class="btn btn-honey">{{ "home.ctaHoney" | i18n }}</a>
-        <a href="/{{ locale }}/blog/" class="btn btn-outline">{{ "home.ctaBlog" | i18n }}</a>
+        <a href="/{{ locale }}/blog/" class="btn btn-outline-light">{{ "home.ctaBlog" | i18n }}</a>
       </div>
-    </div>
-
-    <div class="hero-photo">
-      {% image "/assets/images/hero-pamir-mountains.webp", "Кӯҳҳои Помир дар соати тиллоӣ — сарчашмаи асали кӯҳии тоҷикӣ", "(min-width: 900px) 28vw, 0vw", "eager" %}
     </div>
   </div>
   <div class="hero-scroll" aria-hidden="true">

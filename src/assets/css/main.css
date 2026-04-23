@@ -414,7 +414,7 @@ a:hover {
   justify-content: center;
   padding-top: calc(var(--header-h) + 3rem);
   padding-bottom: 5rem;
-  background: var(--color-cream-50);
+  background: var(--color-pamir-900);
   overflow: hidden;
 }
 
@@ -447,11 +447,7 @@ a:hover {
 
 .hero-inner {
   position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 2rem;
-  align-items: center;
+  z-index: 2;
   max-width: var(--container-max);
   margin-inline: auto;
   padding-inline: clamp(1.25rem, 4vw, 2.5rem);
@@ -468,7 +464,7 @@ a:hover {
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--color-honey-700);
+  color: var(--color-honey-400);
   margin-bottom: 1.75rem;
   animation: fadeUp 0.6s ease 0.1s both;
 }
@@ -479,19 +475,19 @@ a:hover {
   font-weight: 800;
   line-height: 1.05;
   letter-spacing: -0.025em;
-  color: var(--color-pamir-900);
+  color: var(--color-cream-50);
   margin: 0 0 1.75rem;
   animation: fadeUp 0.8s ease 0.2s both;
 }
 
 .hero-headline em {
   font-style: italic;
-  color: var(--color-honey-700);
+  color: var(--color-honey-400);
 }
 
 .hero-lead {
   font-size: var(--text-lg);
-  color: var(--color-ink-muted);
+  color: rgba(245, 238, 225, 0.82);
   line-height: 1.6;
   margin-bottom: 2.5rem;
   animation: fadeUp 0.6s ease 0.38s both;
@@ -504,22 +500,23 @@ a:hover {
   animation: fadeUp 0.6s ease 0.52s both;
 }
 
-/* Hero photograph */
+/* Hero background photograph */
 .hero-photo {
-  width: clamp(220px, 28vw, 440px);
-  aspect-ratio: 3 / 4;
-  border-radius: 3px;
-  overflow: hidden;
-  flex-shrink: 0;
-  position: relative;
-  animation: fadeIn 1.4s ease 0.3s both;
-  box-shadow: 0 24px 64px rgba(62, 86, 112, 0.18);
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 }
 .hero-photo::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(216, 155, 42, 0.12), transparent 60%);
+  z-index: 1;
+  background: linear-gradient(
+    to right,
+    rgba(18, 25, 38, 0.82) 0%,
+    rgba(18, 25, 38, 0.58) 50%,
+    rgba(18, 25, 38, 0.22) 100%
+  );
   pointer-events: none;
 }
 
@@ -650,6 +647,7 @@ a:hover {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
 }
 
 /* ─── Section: Honey ─────────────────────────────────────────────────────── */
@@ -1214,12 +1212,6 @@ body:not(.page-landing) main {
 /* ─── Responsive ─────────────────────────────────────────────────────────── */
 
 @media (max-width: 900px) {
-  .hero-inner {
-    grid-template-columns: 1fr;
-  }
-  .hero-photo {
-    display: none;
-  }
   .about-body {
     grid-template-columns: 1fr;
   }
