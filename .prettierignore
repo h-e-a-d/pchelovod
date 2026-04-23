@@ -1,5 +1,6 @@
 _site/
 node_modules/
+.playwright-mcp/
 pnpm-lock.yaml
 .eleventy-cache/
 src/assets/images/
