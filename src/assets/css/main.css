@@ -243,6 +243,28 @@ a:hover {
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
 }
 
+/* Light text when floating over the dark hero background */
+.page-landing .site-header:not(.scrolled) .brand {
+  color: var(--color-cream-50);
+}
+.page-landing .site-header:not(.scrolled) .nav-link {
+  color: rgba(245, 238, 225, 0.88);
+}
+.page-landing .site-header:not(.scrolled) .nav-link:hover {
+  color: var(--color-cream-50);
+  background: rgba(255, 255, 255, 0.1);
+}
+.page-landing .site-header:not(.scrolled) .lang-dropdown-btn {
+  color: rgba(245, 238, 225, 0.75);
+}
+.page-landing .site-header:not(.scrolled) .lang-dropdown-btn:hover {
+  color: var(--color-cream-50);
+  background: rgba(255, 255, 255, 0.1);
+}
+.page-landing .site-header:not(.scrolled) .nav-toggle span {
+  background: var(--color-cream-50);
+}
+
 .header-inner {
   display: flex;
   align-items: center;
@@ -1271,6 +1293,30 @@ body:not(.page-landing) main {
   #primary-nav .nav-link {
     font-size: var(--text-base);
     padding: 0.625rem 0.5rem;
+  }
+  #primary-nav .lang-dropdown {
+    width: 100%;
+    margin-top: 0.25rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--color-cream-100);
+  }
+  #primary-nav .lang-dropdown-btn {
+    width: 100%;
+    font-size: var(--text-base);
+    padding: 0.625rem 0.5rem;
+    justify-content: space-between;
+    color: var(--color-ink-muted);
+  }
+  #primary-nav .lang-dropdown-menu {
+    position: static;
+    box-shadow: none;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    border-top: 1px solid var(--color-cream-100);
+    margin-top: 0.25rem;
+    width: 100%;
   }
   .about-stats {
     grid-template-columns: 1fr;
