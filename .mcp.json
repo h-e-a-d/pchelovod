@@ -1,0 +1,31 @@
+{
+  "mcpServers": {
+    "rss": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "rss-feeds-mcp",
+        "https://www.naturaleyecare.com/blog/feed/",
+        "https://www.relfeyecare.com/category/eyecare-blog/feed/",
+        "https://www.eyeqindia.com/category/eye-care-tips/feed/",
+        "https://www.simoneye.com/feed/",
+        "https://www.eyecenteroftexas.com/feed/",
+        "https://www.gaeyepartners.com/blog/feed/",
+        "https://www.insightvisioncenter.com/feed/",
+        "https://focusedeyecarenh.com/feed/",
+        "https://www.kadrmaseyecare.com/eye-health--care-blog/feed",
+        "https://www.zennioptical.com/blog/eye-health/feed/",
+        "https://fyidoctors.com/blogs/eye-health.atom",
+        "https://sighteyeclinic.com/feed/",
+        "https://mitchelleyecare.com/feed/"
+      ]
+    },
+    "kie-ai": {
+      "command": "npx",
+      "args": ["-y", "@andrewlwn77/kie-ai-mcp-server"],
+      "env": {
+        "KIE_AI_API_KEY": "e92df8ea0ffc2a36f1f653e29323c480"
+      }
+    }
+  }
+}
