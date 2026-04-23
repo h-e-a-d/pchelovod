@@ -641,13 +641,11 @@ a:hover {
   width: 100%;
   height: auto;
 }
+/* display:contents removes picture's box so img is positioned directly in .hero-photo */
 .hero-photo picture {
-  display: block;
-  position: absolute;
-  inset: 0;
+  display: contents;
 }
 .hero-photo img {
-  display: block;
   position: absolute;
   inset: 0;
   width: 100%;
