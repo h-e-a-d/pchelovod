@@ -1479,6 +1479,19 @@ body:not(.page-landing) main {
 }
 
 @media (max-width: 640px) {
+  /* Override hero white-text rules inside the open mobile drawer */
+  .page-landing .site-header:not(.scrolled) #primary-nav.is-open .nav-link,
+  .page-landing .site-header:not(.scrolled) #primary-nav.is-open .nav-link:hover {
+    color: var(--color-ink);
+    background: transparent;
+  }
+  .page-landing .site-header:not(.scrolled) #primary-nav.is-open .lang-dropdown-btn {
+    color: var(--color-ink-muted);
+  }
+  .page-landing .site-header:not(.scrolled) .nav-toggle[aria-expanded="true"] span {
+    background: var(--color-ink);
+  }
+
   .nav-toggle {
     display: flex;
   }
