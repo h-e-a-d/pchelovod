@@ -15,6 +15,6 @@ export default [
     },
   },
   {
-    ignores: ["_site/**", "node_modules/**", ".eleventy-cache/**"],
+    ignores: ["_site/**", "node_modules/**", ".eleventy-cache/**", ".playwright-mcp/**"],
   },
 ];
