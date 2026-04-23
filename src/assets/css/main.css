@@ -641,9 +641,15 @@ a:hover {
   width: 100%;
   height: auto;
 }
-.hero-photo img,
 .hero-photo picture {
   display: block;
+  position: absolute;
+  inset: 0;
+}
+.hero-photo img {
+  display: block;
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
