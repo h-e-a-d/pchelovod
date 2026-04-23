@@ -59,6 +59,21 @@
     });
   }
 
+  // Language dropdown: close on outside click or on selection
+  var langDropdown = document.getElementById("lang-dropdown");
+  if (langDropdown) {
+    document.addEventListener("click", function (e) {
+      if (!langDropdown.contains(e.target)) {
+        langDropdown.removeAttribute("open");
+      }
+    });
+    langDropdown.querySelectorAll("a").forEach(function (link) {
+      link.addEventListener("click", function () {
+        langDropdown.removeAttribute("open");
+      });
+    });
+  }
+
   // Contact form status from query params (success / error after POST)
   var statusEl = document.getElementById("form-status");
   if (statusEl) {

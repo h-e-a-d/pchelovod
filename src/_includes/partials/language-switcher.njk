@@ -1,13 +1,53 @@
 {% set currentPath = page.url | replace('/' + locale + '/', '/') %}
-<nav aria-label="Language switcher" class="lang-switcher">
-  {% for lang in site.locales %}
-    {% set altPath = '/' + lang + currentPath %}
-    {% if lang == locale %}
-      <span aria-current="true" lang="{{ lang }}">{{ ('langNames.' + lang) | i18n }}</span>
-    {% else %}
-      <a href="{{ altPath }}" lang="{{ lang }}" hreflang="{{ lang }}"
-        >{{ ('langNames.' + lang) | i18n }}</a
-      >
-    {% endif %}
-  {% endfor %}
-</nav>
+<details class="lang-dropdown" id="lang-dropdown">
+  <summary
+    class="lang-dropdown-btn"
+    lang="{{ locale }}"
+    aria-label="Language: {{ ('langNames.' + locale) | i18n }}"
+  >
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <line x1="2" y1="12" x2="22" y2="12" />
+      <path
+        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+      />
+    </svg>
+    <span>{{ ('langNames.' + locale) | i18n }}</span>
+    <svg
+      class="lang-dropdown-chevron"
+      width="11"
+      height="11"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  </summary>
+  <ul class="lang-dropdown-menu">
+    {% for lang in site.locales %}
+      {% if lang != locale %}
+        {% set altPath = '/' + lang + currentPath %}
+        <li>
+          <a href="{{ altPath }}" lang="{{ lang }}" hreflang="{{ lang }}">
+            {{ ('langNames.' + lang) | i18n }}
+          </a>
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+</details>
