@@ -22,107 +22,9 @@ layout: layouts/landing.njk
       </div>
     </div>
 
-    {# Decorative honeycomb SVG cluster #}
-    <svg
-      class="hero-hex"
-      viewBox="0 0 370 340"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <polygon
-        points="50,0 93.3,25 93.3,75 50,100 6.7,75 6.7,25"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.25"
-      />
-      <polygon
-        points="136.6,0 179.9,25 179.9,75 136.6,100 93.3,75 93.3,25"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.25"
-      />
-      <polygon
-        points="223.2,0 266.5,25 266.5,75 223.2,100 179.9,75 179.9,25"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.25"
-      />
-      <polygon
-        points="309.8,0 353.1,25 353.1,75 309.8,100 266.5,75 266.5,25"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.25"
-      />
-      <polygon
-        points="93.3,75 136.6,100 136.6,150 93.3,175 50,150 50,100"
-        fill="currentColor"
-        fill-opacity="0.04"
-        stroke="currentColor"
-        stroke-width="1.25"
-      />
-      <polygon
-        points="179.9,75 223.2,100 223.2,150 179.9,175 136.6,150 136.6,100"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.25"
-      />
-      <polygon
-        points="266.5,75 309.8,100 309.8,150 266.5,175 223.2,150 223.2,100"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.25"
-      />
-      <polygon
-        points="353.1,75 396.4,100 396.4,150 353.1,175 309.8,150 309.8,100"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.25"
-      />
-      <polygon
-        points="50,150 93.3,175 93.3,225 50,250 6.7,225 6.7,175"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.25"
-      />
-      <polygon
-        points="136.6,150 179.9,175 179.9,225 136.6,250 93.3,225 93.3,175"
-        fill="currentColor"
-        fill-opacity="0.06"
-        stroke="currentColor"
-        stroke-width="1.25"
-      />
-      <polygon
-        points="223.2,150 266.5,175 266.5,225 223.2,250 179.9,225 179.9,175"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.25"
-      />
-      <polygon
-        points="309.8,150 353.1,175 353.1,225 309.8,250 266.5,225 266.5,175"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.25"
-      />
-      <polygon
-        points="93.3,225 136.6,250 136.6,300 93.3,325 50,300 50,250"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.25"
-      />
-      <polygon
-        points="179.9,225 223.2,250 223.2,300 179.9,325 136.6,300 136.6,250"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.25"
-      />
-      <polygon
-        points="266.5,225 309.8,250 309.8,300 266.5,325 223.2,300 223.2,250"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.25"
-      />
-    </svg>
+    <div class="hero-photo">
+      {% image "/assets/images/hero-pamir-mountains.webp", "Pamir mountains at golden hour — the source of Tajik mountain honey", "(min-width: 900px) 28vw, 0vw", "eager" %}
+    </div>
   </div>
 
   <div class="hero-scroll" aria-hidden="true">
@@ -154,7 +56,7 @@ layout: layouts/landing.njk
         <p>{{ "about.body" | i18n }}</p>
       </div>
       <div class="about-image-wrap reveal" data-delay="200">
-        {% image "/assets/images/pamir-apiary.jpg", "Wooden beehives on an alpine meadow in the Pamir mountains", "(min-width: 900px) 40vw, 90vw", "lazy" %}
+        {% image "/assets/images/beekeeper-frame.webp", "Beekeeper's hands holding a honeycomb frame with mountain backdrop", "(min-width: 900px) 40vw, 90vw", "lazy" %}
       </div>
     </div>
   </div>
@@ -170,16 +72,25 @@ layout: layouts/landing.njk
     </div>
     <div class="honey-grid">
       <div class="honey-card reveal">
+        <div class="honey-card-img">
+          {% image "/assets/images/honey-mountain.webp", "Dark amber mountain honey dripping from a wooden dipper", "480px", "lazy" %}
+        </div>
         <div class="honey-card-num" aria-hidden="true">01</div>
         <h3>{{ "honey.v1name" | i18n }}</h3>
         <p>{{ "honey.v1desc" | i18n }}</p>
       </div>
       <div class="honey-card reveal" data-delay="150">
+        <div class="honey-card-img">
+          {% image "/assets/images/honey-acacia.webp", "Light golden acacia honey in a glass jar with white blossoms", "480px", "lazy" %}
+        </div>
         <div class="honey-card-num" aria-hidden="true">02</div>
         <h3>{{ "honey.v2name" | i18n }}</h3>
         <p>{{ "honey.v2desc" | i18n }}</p>
       </div>
       <div class="honey-card reveal" data-delay="300">
+        <div class="honey-card-img">
+          {% image "/assets/images/honey-wildflower.webp", "Amber wildflower honey with alpine flowers on a mountain meadow", "480px", "lazy" %}
+        </div>
         <div class="honey-card-num" aria-hidden="true">03</div>
         <h3>{{ "honey.v3name" | i18n }}</h3>
         <p>{{ "honey.v3desc" | i18n }}</p>
@@ -203,7 +114,7 @@ layout: layouts/landing.njk
     </div>
     <div class="beehives-visual reveal" data-delay="200">
       <div class="beehives-image-wrap">
-        {% image "/assets/images/pamir-apiary.jpg", "Handcrafted wooden beehive in the Tajik mountains", "(min-width: 900px) 40vw, 90vw", "lazy" %}
+        {% image "/assets/images/beehives-mountain.webp", "Traditional wooden beehives on a Tajik mountain slope", "(min-width: 900px) 40vw, 90vw", "lazy" %}
       </div>
       <div class="beehives-badge" aria-hidden="true">
         <span class="beehives-badge-num">3</span>
