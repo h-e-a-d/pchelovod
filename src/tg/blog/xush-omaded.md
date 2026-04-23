@@ -1,17 +1,17 @@
 ---
 title: Хуш омадед ба Pchelovod
-description: Шиносоии кӯтоҳ бо занбӯриасалпарварии оилавии мо дар кӯҳҳои Помир ва навъҳои асали кӯҳии Тоҷикистон.
+description: Шиносоии кӯтоҳ бо занбӯриасалпарварии оилавии мо дар кӯҳҳои Тоҷикистон ва навъҳои асали кӯҳӣ.
 permalink: /tg/blog/welcome-to-pchelovod/
 publishDate: 2026-04-22
 author: Pchelovod
-heroImage: /assets/images/pamir-apiary.jpg
-heroAlt: Кундӯҳои чӯбин дар алафзори кӯҳии Помир
+heroImage: /assets/images/tajik-apiary.jpg
+heroAlt: Кундӯҳои чӯбин дар алафзори кӯҳии Тоҷикистон
 category: honey
-topics: [intro, pamir]
+topics: [intro, tajikistan]
 translationKey: welcome-post
 draft: false
 ---
 
-Хуш омадед. Ин аввалин паём аз занбӯриасалпарварии мо дар кӯҳҳои Помир аст.
+Хуш омадед. Ин аввалин паём аз занбӯриасалпарварии мо дар кӯҳҳои Тоҷикистон аст.
 
 (Ҷойнишин.)

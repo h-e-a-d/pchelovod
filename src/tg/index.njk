@@ -1,6 +1,6 @@
 ---
 title: Pchelovod — Асал ва кундӯҳои тоҷикӣ
-description: Асали табиӣ ва кундӯҳои дастсохт аз кӯҳҳои Помир.
+description: Асали табиӣ ва кундӯҳои дастсохт аз кӯҳҳои Тоҷикистон.
 heroImage: /og/home.webp
 permalink: /tg/
 layout: layouts/landing.njk
@@ -9,7 +9,7 @@ layout: layouts/landing.njk
 {# ── Hero ──────────────────────────────────────────────────── #}
 <section id="home" class="hero-section" aria-label="Асосӣ">
   <div class="hero-photo" aria-hidden="true">
-    {% image "/assets/images/hero-pamir-mountains.webp", "", "100vw", "eager" %}
+    {% image "/assets/images/hero-tajik-mountains.webp", "", "100vw", "eager" %}
   </div>
   <div class="hero-bg-blob" aria-hidden="true"></div>
   <div class="hero-inner">
@@ -118,6 +118,30 @@ layout: layouts/landing.njk
       <div class="beehives-badge" aria-hidden="true">
         <span class="beehives-badge-num">3</span>
         <span class="beehives-badge-label">Насл</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ── Queens ────────────────────────────────────────────────── #}
+<section id="queens" class="queens-section" aria-label="{{ 'queens.label' | i18n }}">
+  <div class="queens-inner">
+    <div class="queens-text reveal">
+      <span class="section-label">{{ "queens.label" | i18n }}</span>
+      <h2>{{ "queens.title" | i18n }}</h2>
+      <p>{{ "queens.body" | i18n }}</p>
+      <ul class="queens-details">
+        <li>{{ "queens.detail1" | i18n }}</li>
+        <li>{{ "queens.detail2" | i18n }}</li>
+        <li>{{ "queens.detail3" | i18n }}</li>
+      </ul>
+      <a href="#contact" class="btn btn-honey" style="margin-top:2rem;display:inline-block;"
+        >{{ "contact.title" | i18n }}</a
+      >
+    </div>
+    <div class="queens-visual reveal" data-delay="200">
+      <div class="queens-image-wrap">
+        {% image "/assets/images/queen-carnica.webp", "Мулочаи Карника Скленар дар рамкаи асал", "(min-width: 900px) 40vw, 90vw", "lazy" %}
       </div>
     </div>
   </div>

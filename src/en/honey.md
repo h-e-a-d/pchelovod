@@ -1,6 +1,6 @@
 ---
 title: Our honey
-description: Raw mountain honey from the Pamir and Fann ranges.
+description: Raw mountain honey from the highlands of Tajikistan.
 permalink: /en/honey/
 ---
 

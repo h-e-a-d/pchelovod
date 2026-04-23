@@ -4,26 +4,27 @@
     "about": "About",
     "honey": "Honey",
     "beehives": "Beehives",
+    "queens": "Queen Bees",
     "blog": "Blog",
     "contact": "Contact"
   },
   "home": {
     "heroTitle": "Honey from the Tajik mountains",
-    "heroLead": "Raw honey and handmade beehives from the Pamir.",
-    "origin": "Tajikistan · Pamir mountains",
+    "heroLead": "Raw honey and handmade beehives from the mountains of Tajikistan.",
+    "origin": "Tajikistan · Mountain honey",
     "ctaHoney": "Discover our honey",
     "ctaBlog": "Read the blog"
   },
   "about": {
     "label": "Our Story",
-    "title": "A family apiary in the heart of the Pamir",
-    "body": "Pchelovod is a small family operation at the foot of the Fann mountains. We tend our hives through the short but intense alpine season — from the first thaw to the last meadow bloom. The honey is raw, unfiltered, and moves as slowly as the bees that make it.",
+    "title": "A family apiary in the mountains of Tajikistan",
+    "body": "Pchelovod is a small family operation in the mountains of Tajikistan. We tend our hives through the short but intense alpine season — from the first thaw to the last meadow bloom. The honey is raw, unfiltered, and moves as slowly as the bees that make it.",
     "stat1Label": "Altitude",
     "stat1Value": "2,400–3,600 m",
     "stat2Label": "Season",
     "stat2Value": "June–September",
     "stat3Label": "Region",
-    "stat3Value": "Fann & Pamir"
+    "stat3Value": "Tajikistan"
   },
   "honey": {
     "label": "Our Honey",
@@ -44,6 +45,14 @@
     "detail2": "Designed for high-altitude colonies",
     "detail3": "Available to other apiaries on request"
   },
+  "queens": {
+    "label": "Queen Bees",
+    "title": "Carnica Sklenar queens",
+    "body": "We breed and sell Carnica Sklenar queen bees — one of the most productive and gentle lines in European beekeeping. Adapted to mountain climates and known for calm temperament, low swarming tendency, and excellent winter hardiness.",
+    "detail1": "Carnica Sklenar line",
+    "detail2": "Tested for gentleness and productivity",
+    "detail3": "Available by order, spring and summer"
+  },
   "contact": {
     "label": "Contact",
     "title": "Get in touch",
@@ -54,7 +63,7 @@
   },
   "footer": {
     "rights": "All rights reserved.",
-    "tagline": "Raw honey and beehives from the Pamir mountains.",
+    "tagline": "Raw honey and beehives from the mountains of Tajikistan.",
     "navLabel": "Footer navigation"
   },
   "a11y": {
