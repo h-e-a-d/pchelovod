@@ -1,0 +1,125 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "Pchelovod" [ref=e4] [cursor=pointer]:
+        - /url: /en/
+      - navigation "Primary" [ref=e5]:
+        - link "Home" [ref=e6] [cursor=pointer]:
+          - /url: /en/#home
+        - link "About" [ref=e7] [cursor=pointer]:
+          - /url: /en/#about
+        - link "Honey" [ref=e8] [cursor=pointer]:
+          - /url: /en/#honey
+        - link "Beehives" [ref=e9] [cursor=pointer]:
+          - /url: /en/#beehives
+        - link "Blog" [ref=e10] [cursor=pointer]:
+          - /url: /en/blog/
+        - link "Contact" [ref=e11] [cursor=pointer]:
+          - /url: /en/#contact
+      - navigation "Language switcher" [ref=e12]:
+        - generic [ref=e13]: English
+        - link "Русский" [ref=e14] [cursor=pointer]:
+          - /url: /ru/
+        - link "Тоҷикӣ" [ref=e15] [cursor=pointer]:
+          - /url: /tg/
+  - main [ref=e16]:
+    - region "Home" [ref=e17]:
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - paragraph [ref=e20]: Tajikistan · Pamir mountains
+          - heading "Honey from the Tajik mountains" [level=1] [ref=e21]:
+            - text: Honey from the
+            - emphasis [ref=e22]: Tajik
+            - text: mountains
+          - paragraph [ref=e23]: Raw honey and handmade beehives from the Pamir.
+          - generic [ref=e24]:
+            - link "Discover our honey" [ref=e25] [cursor=pointer]:
+              - /url: "#honey"
+            - link "Read the blog" [ref=e26] [cursor=pointer]:
+              - /url: /en/blog/
+        - img [ref=e27]
+    - region "Our Story" [ref=e45]:
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - generic [ref=e48]:
+            - generic [ref=e49]: 2,400–3,600 m
+            - generic [ref=e50]: Altitude
+          - generic [ref=e51]:
+            - generic [ref=e52]: June–September
+            - generic [ref=e53]: Season
+          - generic [ref=e54]:
+            - generic [ref=e55]: Fann & Pamir
+            - generic [ref=e56]: Region
+        - generic [ref=e57]:
+          - generic [ref=e58]:
+            - generic [ref=e59]: Our Story
+            - heading "A family apiary in the heart of the Pamir" [level=2] [ref=e60]
+            - paragraph [ref=e61]: Pchelovod is a small family operation at the foot of the Fann mountains. We tend our hives through the short but intense alpine season — from the first thaw to the last meadow bloom. The honey is raw, unfiltered, and moves as slowly as the bees that make it.
+          - img "Wooden beehives on an alpine meadow in the Pamir mountains" [ref=e64]
+    - region "Our Honey" [ref=e65]:
+      - generic [ref=e66]:
+        - generic [ref=e67]:
+          - generic [ref=e68]: Our Honey
+          - heading "From the mountain meadows" [level=2] [ref=e69]
+          - paragraph [ref=e70]: Each variety reflects a different altitude, flora, and moment in the season.
+        - generic [ref=e71]:
+          - generic [ref=e72]:
+            - generic [ref=e73]: "01"
+            - heading "Mountain Wildflower" [level=3] [ref=e74]
+            - paragraph [ref=e75]: Multi-floral, collected from alpine meadows at 2,500 m. Deep amber with a complex, slightly resinous finish.
+          - generic [ref=e76]:
+            - generic [ref=e77]: "02"
+            - heading "Acacia" [level=3] [ref=e78]
+            - paragraph [ref=e79]: Pale gold, slow to crystallize. Delicate aroma and clean sweetness from the lowland acacia groves.
+          - generic [ref=e80]:
+            - generic [ref=e81]: "03"
+            - heading "High-Altitude Meadow" [level=3] [ref=e82]
+            - paragraph [ref=e83]: Rare. Harvested above 3,000 m during the brief July bloom. Intensely aromatic, limited quantity each year.
+    - region "Beehives" [ref=e84]:
+      - generic [ref=e85]:
+        - generic [ref=e86]:
+          - generic [ref=e87]: Beehives
+          - heading "Handmade for mountain conditions" [level=2] [ref=e88]
+          - paragraph [ref=e89]: Our wooden hives are built from local timber using traditional Tajik techniques passed down through three generations. Each box is sized for mountain colonies — compact enough to carry up steep trails, robust enough to withstand harsh winters.
+          - list [ref=e90]:
+            - listitem [ref=e91]: Local timber, hand-joined
+            - listitem [ref=e92]: Designed for high-altitude colonies
+            - listitem [ref=e93]: Available to other apiaries on request
+        - generic [ref=e94]:
+          - img "Handcrafted wooden beehive in the Tajik mountains" [ref=e97]
+          - generic [ref=e98]:
+            - generic [ref=e99]: "3"
+            - text: Generations
+    - region "Contact" [ref=e100]:
+      - generic [ref=e101]:
+        - generic [ref=e102]:
+          - generic [ref=e103]: Contact
+          - heading "Get in touch" [level=2] [ref=e104]
+          - paragraph [ref=e105]: We respond to every message personally. For urgent inquiries, reach us on Telegram.
+          - generic [ref=e106]:
+            - link "Email — hello@pchelovod.tj" [ref=e107] [cursor=pointer]:
+              - /url: mailto:hello@pchelovod.tj
+              - img [ref=e109]
+              - generic [ref=e112]: Email — hello@pchelovod.tj
+            - link "Telegram" [ref=e113] [cursor=pointer]:
+              - /url: https://t.me/pchelovod
+              - img [ref=e115]
+              - generic [ref=e117]: Telegram
+            - link "WhatsApp" [ref=e118] [cursor=pointer]:
+              - /url: https://wa.me/992900000000
+              - img [ref=e120]
+              - generic [ref=e122]: WhatsApp
+        - generic [ref=e125]:
+          - textbox [ref=e126]
+          - generic [ref=e127]:
+            - text: Your name
+            - textbox "Your name" [ref=e128]
+          - generic [ref=e129]:
+            - text: Email
+            - textbox "Email" [ref=e130]
+          - generic [ref=e131]:
+            - text: Message
+            - textbox "Message" [ref=e132]
+          - button "Send message" [ref=e133] [cursor=pointer]
+  - contentinfo [ref=e134]:
+    - paragraph [ref=e135]: © Pchelovod 2026. All rights reserved.

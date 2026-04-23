@@ -9,7 +9,48 @@
   },
   "home": {
     "heroTitle": "Honey from the Tajik mountains",
-    "heroLead": "Raw honey and handmade beehives from the Pamir."
+    "heroLead": "Raw honey and handmade beehives from the Pamir.",
+    "origin": "Tajikistan · Pamir mountains",
+    "ctaHoney": "Discover our honey",
+    "ctaBlog": "Read the blog"
+  },
+  "about": {
+    "label": "Our Story",
+    "title": "A family apiary in the heart of the Pamir",
+    "body": "Pchelovod is a small family operation at the foot of the Fann mountains. We tend our hives through the short but intense alpine season — from the first thaw to the last meadow bloom. The honey is raw, unfiltered, and moves as slowly as the bees that make it.",
+    "stat1Label": "Altitude",
+    "stat1Value": "2,400–3,600 m",
+    "stat2Label": "Season",
+    "stat2Value": "June–September",
+    "stat3Label": "Region",
+    "stat3Value": "Fann & Pamir"
+  },
+  "honey": {
+    "label": "Our Honey",
+    "title": "From the mountain meadows",
+    "lead": "Each variety reflects a different altitude, flora, and moment in the season.",
+    "v1name": "Mountain Wildflower",
+    "v1desc": "Multi-floral, collected from alpine meadows at 2,500 m. Deep amber with a complex, slightly resinous finish.",
+    "v2name": "Acacia",
+    "v2desc": "Pale gold, slow to crystallize. Delicate aroma and clean sweetness from the lowland acacia groves.",
+    "v3name": "High-Altitude Meadow",
+    "v3desc": "Rare. Harvested above 3,000 m during the brief July bloom. Intensely aromatic, limited quantity each year."
+  },
+  "beehives": {
+    "label": "Beehives",
+    "title": "Handmade for mountain conditions",
+    "body": "Our wooden hives are built from local timber using traditional Tajik techniques passed down through three generations. Each box is sized for mountain colonies — compact enough to carry up steep trails, robust enough to withstand harsh winters.",
+    "detail1": "Local timber, hand-joined",
+    "detail2": "Designed for high-altitude colonies",
+    "detail3": "Available to other apiaries on request"
+  },
+  "contact": {
+    "label": "Contact",
+    "title": "Get in touch",
+    "lead": "We respond to every message personally. For urgent inquiries, reach us on Telegram.",
+    "telegram": "Telegram",
+    "whatsapp": "WhatsApp",
+    "emailLabel": "Email"
   },
   "footer": { "rights": "All rights reserved." },
   "langNames": { "en": "English", "ru": "Русский", "tg": "Тоҷикӣ" },
@@ -17,7 +58,7 @@
     "name": "Your name",
     "email": "Email",
     "message": "Message",
-    "submit": "Send",
+    "submit": "Send message",
     "success": "Thanks — we'll be in touch.",
     "error": "Something went wrong. Please email us directly."
   }
