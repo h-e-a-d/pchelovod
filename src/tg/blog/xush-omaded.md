@@ -4,7 +4,7 @@ description: Шиносоии кӯтоҳ бо занбӯриасалпарвар
 permalink: /tg/blog/welcome-to-pchelovod/
 publishDate: 2026-04-22
 author: Pchelovod
-heroImage: /assets/images/tajik-apiary.jpg
+heroImage: /assets/images/tajik-apiary.webp
 heroAlt: Кундӯҳои чӯбин дар алафзори кӯҳии Тоҷикистон
 category: honey
 topics: [intro, tajikistan]

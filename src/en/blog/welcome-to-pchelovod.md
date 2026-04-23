@@ -3,7 +3,7 @@ title: Welcome to Pchelovod
 description: A brief introduction to our apiary and the honey varieties we produce.
 publishDate: 2026-04-22
 author: Pchelovod
-heroImage: /assets/images/tajik-apiary.jpg
+heroImage: /assets/images/tajik-apiary.webp
 heroAlt: Wooden hives on an alpine meadow in the Tajik mountains
 category: honey
 topics: [intro, tajikistan]
