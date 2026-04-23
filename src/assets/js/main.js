@@ -82,6 +82,22 @@
     });
   }
 
+  // Beehive easter egg: click releases bees for ~3.5s
+  var beehive = document.querySelector(".beehive");
+  var beehiveBtn = beehive && beehive.querySelector(".beehive-btn");
+  if (beehive && beehiveBtn) {
+    var beesTimeout;
+    beehiveBtn.addEventListener("click", function () {
+      beehive.classList.remove("bees-flying");
+      void beehive.offsetWidth; // force reflow so animations restart on repeat clicks
+      beehive.classList.add("bees-flying");
+      clearTimeout(beesTimeout);
+      beesTimeout = setTimeout(function () {
+        beehive.classList.remove("bees-flying");
+      }, 3800);
+    });
+  }
+
   // Contact form status from query params (success / error after POST)
   var statusEl = document.getElementById("form-status");
   if (statusEl) {

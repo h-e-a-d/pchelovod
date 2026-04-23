@@ -1,6 +1,67 @@
 <header class="site-header" id="site-header">
   <div class="header-inner">
     <a href="/{{ locale }}/" class="brand" aria-label="{{ site.name }}">{{ site.name }}</a>
+    <div class="beehive">
+      <button class="beehive-btn" type="button" aria-label="{{ 'beehive.aria' | i18n }}">
+        <svg
+          class="beehive-icon"
+          viewBox="0 0 24 24"
+          width="22"
+          height="22"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <g
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="8" y="3" width="8" height="3" rx="1.5" />
+            <rect x="6" y="5.8" width="12" height="3" rx="1.5" />
+            <rect x="4.6" y="8.6" width="14.8" height="3" rx="1.5" />
+            <rect x="4.6" y="11.4" width="14.8" height="3" rx="1.5" />
+            <rect x="6" y="14.2" width="12" height="3" rx="1.5" />
+            <rect x="7.5" y="17" width="9" height="3" rx="1.5" />
+          </g>
+          <circle cx="12" cy="12.9" r="1.7" fill="currentColor" />
+        </svg>
+      </button>
+      <div class="bees" aria-hidden="true">
+        {% for n in range(1, 7) %}
+          <span class="bee bee--{{ n }}">
+            <svg viewBox="0 0 22 16" width="20" height="14" aria-hidden="true" focusable="false">
+              <ellipse
+                class="bee-wing bee-wing--l"
+                cx="8"
+                cy="5"
+                rx="5"
+                ry="3.5"
+                fill="rgba(255,255,255,0.78)"
+                stroke="#3b2a0c"
+                stroke-width="0.4"
+              />
+              <ellipse
+                class="bee-wing bee-wing--r"
+                cx="14"
+                cy="5"
+                rx="5"
+                ry="3.5"
+                fill="rgba(255,255,255,0.78)"
+                stroke="#3b2a0c"
+                stroke-width="0.4"
+              />
+              <ellipse cx="11" cy="10" rx="7" ry="4" fill="#d89b2a" />
+              <rect x="7" y="6" width="1.4" height="8" fill="#3b2a0c" />
+              <rect x="10.3" y="6" width="1.4" height="8" fill="#3b2a0c" />
+              <rect x="13.6" y="6" width="1.4" height="8" fill="#3b2a0c" />
+              <circle cx="17" cy="9" r="0.9" fill="#1a1a1a" />
+            </svg>
+          </span>
+        {% endfor %}
+      </div>
+    </div>
     <button
       class="nav-toggle"
       aria-expanded="false"

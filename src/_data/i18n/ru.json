@@ -69,6 +69,9 @@
   "a11y": {
     "skipToContent": "Перейти к содержимому"
   },
+  "beehive": {
+    "aria": "Разбудить пчёл"
+  },
   "langNames": { "en": "English", "ru": "Русский", "tg": "Тоҷикӣ" },
   "form": {
     "name": "Ваше имя",
