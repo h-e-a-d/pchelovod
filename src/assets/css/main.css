@@ -931,7 +931,7 @@ a:hover {
 
 .bees-anim-section {
   height: 400vh;
-  background: #f5eee1;
+  background: #f1e7d2;
   position: relative;
 }
 
@@ -942,7 +942,7 @@ a:hover {
   display: flex;
   align-items: center;
   overflow: hidden;
-  background: #f5eee1;
+  background: #f1e7d2;
 }
 
 .bees-anim-left {
