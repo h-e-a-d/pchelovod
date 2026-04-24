@@ -45,6 +45,9 @@ export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ public: "/" });
   eleventyConfig.addPassthroughCopy("src/assets/js");
   eleventyConfig.addPassthroughCopy({
+    "src/assets/images/honey-bee-frames": "assets/images/honey-bee-frames",
+  });
+  eleventyConfig.addPassthroughCopy({
     "node_modules/@fontsource-variable/noto-sans/files": "assets/fonts/noto-sans",
     "node_modules/@fontsource-variable/noto-serif-display/files": "assets/fonts/noto-serif-display",
   });
