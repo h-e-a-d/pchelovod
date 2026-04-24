@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flappy Bird</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+    canvas { display: block; image-rendering: pixelated; }
+
+    /* ── AdSense overlay (pre-roll / interstitial) ─────────────── */
+    #ad-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      gap: 16px;
+    }
+    #ad-overlay.hidden { display: none; }
+    #ad-container { width: 320px; min-height: 50px; }
+    #ad-skip {
+      background: none;
+      border: 1px solid #444;
+      padding: 6px 16px;
+      border-radius: 4px;
+      color: #fff;
+      font-family: sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+    }
+  </style>
+  <!-- Google AdSense for Games -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-REPLACE_WITH_YOUR_PUBLISHER_ID" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<!-- Ad overlay (shown for pre-roll and interstitials) -->
+<div id="ad-overlay">
+  <ins class="adsbygoogle"
+       id="ad-container"
+       style="display:block"
+       data-ad-client="ca-pub-REPLACE_WITH_YOUR_PUBLISHER_ID"
+       data-ad-slot="REPLACE_WITH_AD_SLOT_ID"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <button id="ad-skip">Skip Ad ›</button>
+</div>
+
+<canvas id="canvas"></canvas>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// GAME SDK — copy verbatim into every game, do not modify
+// ═══════════════════════════════════════════════════════════════════
+
+const GameSDK = (() => {
+  let saveTimer = null;
+  const SAVE_DEBOUNCE_MS = 2000;
+
+  // Receive load-save from parent shell
+  window.addEventListener('message', (e) => {
+    if (e.data?.type === 'load-save') {
+      if (typeof onSaveLoaded === 'function') onSaveLoaded(e.data.data);
+    }
+  });
+
+  function save(data) {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      parent.postMessage({ type: 'save', data }, '*');
+    }, SAVE_DEBOUNCE_MS);
+  }
+
+  // ── Ad management ──────────────────────────────────────────────
+  const overlay = document.getElementById('ad-overlay');
+  const skipBtn = document.getElementById('ad-skip');
+  let adResolve = null;
+  let skipDelay = 5;
+
+  skipBtn.disabled = true;
+  skipBtn.textContent = `Skip Ad (${skipDelay})`;
+
+  function runAdTimer() {
+    const t = setInterval(() => {
+      skipDelay--;
+      skipBtn.textContent = skipDelay > 0 ? `Skip Ad (${skipDelay})` : 'Skip Ad ›';
+      if (skipDelay <= 0) {
+        skipBtn.disabled = false;
+        clearInterval(t);
+      }
+    }, 1000);
+  }
+
+  function showAd() {
+    return new Promise((resolve) => {
+      adResolve = resolve;
+      overlay.classList.remove('hidden');
+      skipDelay = 5;
+      skipBtn.disabled = true;
+      skipBtn.textContent = `Skip Ad (${skipDelay})`;
+      runAdTimer();
+      try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+    });
+  }
+
+  skipBtn.addEventListener('click', () => {
+    overlay.classList.add('hidden');
+    if (adResolve) { adResolve(); adResolve = null; }
+  });
+
+  return { save, showAd };
+})();
+
+// ═══════════════════════════════════════════════════════════════════
+// FLAPPY BIRD — game code
+// ═══════════════════════════════════════════════════════════════════
+
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+// Canvas dimensions (widescreen physics game per skill)
+const W = 480;
+const H = 640;
+canvas.width  = W;
+canvas.height = H;
+
+// ── Physics constants ────────────────────────────────────────────
+const GRAVITY      = 0.45;
+const FLAP_VEL     = -8.5;
+const PIPE_SPEED   = 3;
+const PIPE_WIDTH   = 60;
+const PIPE_GAP     = 150;
+const PIPE_SPAWN   = 160;   // frames between pipe spawns
+const BIRD_X       = 100;
+const BIRD_RADIUS  = 14;
+const GROUND_H     = 60;
+
+// ── Game state ───────────────────────────────────────────────────
+let bird, pipes, score, highScore, running, gameOverState, frameCount, speed;
+
+highScore = 0; // overwritten by onSaveLoaded if save exists
+
+// ── Save/load ────────────────────────────────────────────────────
+function onSaveLoaded(data) {
+  highScore = data.highScore ?? 0;
+}
+
+function resetState() {
+  bird = {
+    x: BIRD_X,
+    y: H / 2 - 40,
+    vy: 0,
+    rotation: 0,
+  };
+  pipes       = [];
+  score       = 0;
+  frameCount  = 0;
+  speed       = PIPE_SPEED;
+  running     = true;
+  gameOverState = false;
+}
+
+// ── Pipe generation ──────────────────────────────────────────────
+function spawnPipe() {
+  const minTop = 80;
+  const maxTop = H - GROUND_H - PIPE_GAP - 80;
+  const topHeight = Math.floor(Math.random() * (maxTop - minTop + 1)) + minTop;
+  pipes.push({
+    x: W + PIPE_WIDTH,
+    topHeight,
+    scored: false,
+  });
+}
+
+// ── Collision detection ──────────────────────────────────────────
+function circleRect(cx, cy, cr, rx, ry, rw, rh) {
+  const nearX = Math.max(rx, Math.min(cx, rx + rw));
+  const nearY = Math.max(ry, Math.min(cy, ry + rh));
+  const dx = cx - nearX;
+  const dy = cy - nearY;
+  return dx * dx + dy * dy < cr * cr;
+}
+
+function checkCollision() {
+  const bx = bird.x;
+  const by = bird.y;
+  const br = BIRD_RADIUS - 2; // slightly forgiving radius
+
+  // Ground / ceiling
+  if (by + br >= H - GROUND_H) return true;
+  if (by - br <= 0) return true;
+
+  // Pipes
+  for (const p of pipes) {
+    // Top pipe rect
+    if (circleRect(bx, by, br, p.x, 0, PIPE_WIDTH, p.topHeight)) return true;
+    // Bottom pipe rect
+    const bottomY = p.topHeight + PIPE_GAP;
+    if (circleRect(bx, by, br, p.x, bottomY, PIPE_WIDTH, H - GROUND_H - bottomY)) return true;
+  }
+  return false;
+}
+
+// ── Update ───────────────────────────────────────────────────────
+function update() {
+  frameCount++;
+
+  // Bird physics
+  bird.vy += GRAVITY;
+  bird.y  += bird.vy;
+
+  // Rotation: tilt up on flap, nose-dive on fall
+  const targetRot = Math.max(-25, Math.min(90, bird.vy * 4));
+  bird.rotation += (targetRot - bird.rotation) * 0.18;
+
+  // Spawn pipes
+  if (frameCount % PIPE_SPAWN === 0) {
+    spawnPipe();
+  }
+
+  // Move pipes & score
+  for (const p of pipes) {
+    p.x -= speed;
+
+    // Score: pipe fully passed the bird
+    if (!p.scored && p.x + PIPE_WIDTH < BIRD_X - BIRD_RADIUS) {
+      p.scored = true;
+      score++;
+      if (score > highScore) {
+        highScore = score;
+        GameSDK.save({ highScore });
+      }
+    }
+  }
+
+  // Remove off-screen pipes
+  pipes = pipes.filter(p => p.x + PIPE_WIDTH > 0);
+
+  // Gradual speed ramp (Pattern C)
+  speed = PIPE_SPEED + frameCount * 0.0008;
+
+  // Collision check
+  if (checkCollision()) {
+    triggerGameOver();
+  }
+}
+
+// ── Game over ────────────────────────────────────────────────────
+async function triggerGameOver() {
+  running = false;
+  gameOverState = true;
+
+  if (score > highScore) {
+    highScore = score;
+  }
+  GameSDK.save({ highScore });
+
+  render(); // draw final frame with game-over overlay
+
+  await GameSDK.showAd();
+
+  // Show restart prompt after ad
+  gameOverState = true;
+  render();
+}
+
+// ── Input: flap ──────────────────────────────────────────────────
+function flap() {
+  if (gameOverState) {
+    resetState();
+    return;
+  }
+  if (running) {
+    bird.vy = FLAP_VEL;
+  }
+}
+
+// Keyboard — prevent Space from scrolling the iframe
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.code === 'Space') {
+    e.preventDefault();
+    flap();
+  }
+});
+
+// Pointer (click / tap) — prevent default to stop scroll bubbling
+canvas.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  flap();
+});
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  flap();
+}, { passive: false });
+
+// ── Rendering helpers ────────────────────────────────────────────
+function drawBackground() {
+  // Sky gradient
+  const sky = ctx.createLinearGradient(0, 0, 0, H - GROUND_H);
+  sky.addColorStop(0, '#0a0a1e');
+  sky.addColorStop(1, '#0d1b2a');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, W, H - GROUND_H);
+
+  // Distant stars (seeded by position, stable each frame)
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  for (let i = 0; i < 40; i++) {
+    const sx = ((i * 137 + 11) % W);
+    const sy = ((i * 97  + 31) % (H - GROUND_H - 60));
+    ctx.fillRect(sx, sy, 1, 1);
+  }
+}
+
+function drawGround() {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fillRect(0, H - GROUND_H, W, GROUND_H);
+
+  ctx.fillStyle = '#5c5cff';
+  ctx.fillRect(0, H - GROUND_H, W, 3);
+
+  ctx.fillStyle = '#2a2a4a';
+  ctx.fillRect(0, H - GROUND_H + 3, W, GROUND_H - 3);
+}
+
+function drawPipe(p) {
+  const pipeColor    = '#1a3a1a';
+  const pipeAccent   = '#2a5c2a';
+  const pipeHighlight = '#5c5cff';
+  const capH = 20;
+  const capExtra = 6;
+
+  // Top pipe body
+  ctx.fillStyle = pipeColor;
+  ctx.fillRect(p.x, 0, PIPE_WIDTH, p.topHeight - capH);
+
+  // Top pipe highlight stripe
+  ctx.fillStyle = pipeAccent;
+  ctx.fillRect(p.x + 6, 0, 8, p.topHeight - capH);
+
+  // Top pipe cap
+  ctx.fillStyle = pipeAccent;
+  ctx.fillRect(p.x - capExtra, p.topHeight - capH, PIPE_WIDTH + capExtra * 2, capH);
+
+  // Top pipe cap highlight
+  ctx.fillStyle = pipeHighlight;
+  ctx.fillRect(p.x - capExtra, p.topHeight - capH, PIPE_WIDTH + capExtra * 2, 3);
+
+  // Bottom pipe
+  const bottomY = p.topHeight + PIPE_GAP;
+  const bottomLen = H - GROUND_H - bottomY;
+
+  // Bottom pipe cap
+  ctx.fillStyle = pipeAccent;
+  ctx.fillRect(p.x - capExtra, bottomY, PIPE_WIDTH + capExtra * 2, capH);
+
+  // Bottom pipe cap highlight
+  ctx.fillStyle = pipeHighlight;
+  ctx.fillRect(p.x - capExtra, bottomY, PIPE_WIDTH + capExtra * 2, 3);
+
+  // Bottom pipe body
+  ctx.fillStyle = pipeColor;
+  ctx.fillRect(p.x, bottomY + capH, PIPE_WIDTH, bottomLen - capH);
+
+  // Bottom pipe highlight stripe
+  ctx.fillStyle = pipeAccent;
+  ctx.fillRect(p.x + 6, bottomY + capH, 8, bottomLen - capH);
+}
+
+function drawBird() {
+  ctx.save();
+  ctx.translate(bird.x, bird.y);
+  ctx.rotate(bird.rotation * Math.PI / 180);
+
+  // Body
+  ctx.fillStyle = '#f5c842';
+  ctx.beginPath();
+  ctx.arc(0, 0, BIRD_RADIUS, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Wing
+  ctx.fillStyle = '#e6a800';
+  ctx.beginPath();
+  ctx.ellipse(-4, 3, 9, 5, -0.4, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Belly
+  ctx.fillStyle = '#fff9e0';
+  ctx.beginPath();
+  ctx.ellipse(3, 3, 7, 6, 0.3, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Eye white
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(6, -4, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Pupil
+  ctx.fillStyle = '#111';
+  ctx.beginPath();
+  ctx.arc(7, -4, 2.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Eye glint
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(8, -5, 1, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Beak
+  ctx.fillStyle = '#ff8c00';
+  ctx.beginPath();
+  ctx.moveTo(10, -1);
+  ctx.lineTo(18, 1);
+  ctx.lineTo(10, 4);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawHUD() {
+  // Score — top left
+  ctx.fillStyle = '#888';
+  ctx.font = '13px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('SCORE', 8, 22);
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 22px monospace';
+  ctx.fillText(score, 8, 48);
+
+  // High score — top right
+  ctx.fillStyle = '#888';
+  ctx.font = '13px monospace';
+  ctx.textAlign = 'right';
+  ctx.fillText('BEST', W - 8, 22);
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 22px monospace';
+  ctx.fillText(highScore, W - 8, 48);
+
+  ctx.textAlign = 'left';
+}
+
+function drawGameOver() {
+  // Dim overlay
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  ctx.fillRect(0, 0, W, H);
+
+  // Panel
+  ctx.fillStyle = '#0d0d1f';
+  ctx.strokeStyle = '#5c5cff';
+  ctx.lineWidth = 2;
+  const pw = 280, ph = 160;
+  const px = (W - pw) / 2, py = (H - ph) / 2;
+  ctx.fillRect(px, py, pw, ph);
+  ctx.strokeRect(px, py, pw, ph);
+
+  ctx.fillStyle = '#5c5cff';
+  ctx.font = 'bold 28px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('GAME OVER', W / 2, py + 48);
+
+  ctx.fillStyle = '#888';
+  ctx.font = '14px monospace';
+  ctx.fillText(`Score: ${score}`, W / 2, py + 80);
+
+  ctx.fillStyle = score >= highScore ? '#5c5cff' : '#888';
+  ctx.fillText(`Best: ${highScore}`, W / 2, py + 102);
+
+  ctx.fillStyle = '#fff';
+  ctx.font = '13px monospace';
+  ctx.fillText('SPACE / TAP to restart', W / 2, py + 136);
+
+  ctx.textAlign = 'left';
+}
+
+function drawStartScreen() {
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = '#5c5cff';
+  ctx.font = 'bold 36px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('FLAPPY', W / 2, H / 2 - 30);
+
+  ctx.fillStyle = '#f5c842';
+  ctx.fillText('BIRD', W / 2, H / 2 + 10);
+
+  ctx.fillStyle = '#888';
+  ctx.font = '14px monospace';
+  ctx.fillText('SPACE / TAP to start', W / 2, H / 2 + 55);
+
+  ctx.textAlign = 'left';
+}
+
+// ── Main render ──────────────────────────────────────────────────
+function render() {
+  ctx.clearRect(0, 0, W, H);
+
+  drawBackground();
+
+  for (const p of pipes) {
+    drawPipe(p);
+  }
+
+  drawGround();
+  drawBird();
+  drawHUD();
+
+  if (gameOverState) {
+    drawGameOver();
+  }
+}
+
+// ── Main loop (Pattern B) ────────────────────────────────────────
+function loop() {
+  if (running) {
+    update();
+    render();
+  } else if (!gameOverState) {
+    // Between ad and game start — just render current state
+    render();
+  }
+  requestAnimationFrame(loop);
+}
+
+// ── Auto-save on visibility change ───────────────────────────────
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    GameSDK.save({ highScore });
+  }
+});
+
+// ── Init ─────────────────────────────────────────────────────────
+async function init() {
+  // Show pre-roll ad before gameplay starts
+  await GameSDK.showAd();
+
+  resetState();
+  running = false; // wait for first flap to start
+
+  // Draw start screen once
+  drawBackground();
+  for (const p of pipes) drawPipe(p);
+  drawGround();
+  drawBird();
+  drawHUD();
+  drawStartScreen();
+
+  // First input starts the game
+  function startOnInput(e) {
+    if (e.type === 'keydown' && e.key !== ' ' && e.code !== 'Space') return;
+    if (e.type === 'keydown') e.preventDefault();
+    document.removeEventListener('keydown', startOnInput);
+    canvas.removeEventListener('pointerdown', startOnInput);
+    running = true;
+    bird.vy = FLAP_VEL; // initial flap on start
+    requestAnimationFrame(loop);
+  }
+
+  document.addEventListener('keydown', startOnInput);
+  canvas.addEventListener('pointerdown', startOnInput);
+}
+
+init();
+</script>
+</body>
+</html>

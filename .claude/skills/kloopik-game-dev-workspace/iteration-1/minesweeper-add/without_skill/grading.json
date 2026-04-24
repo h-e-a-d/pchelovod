@@ -1,0 +1,57 @@
+{
+  "pass_count": 10,
+  "total": 10,
+  "pass_rate": 1.0,
+  "expectations": [
+    {
+      "text": "game_html_present",
+      "passed": true,
+      "evidence": "len=13857"
+    },
+    {
+      "text": "catalog_entry_complete",
+      "passed": true,
+      "evidence": "all fields present, slug=minesweeper"
+    },
+    {
+      "text": "gamesdk_showad_preroll",
+      "passed": true,
+      "evidence": "checked preroll"
+    },
+    {
+      "text": "gamesdk_showad_interstitial",
+      "passed": true,
+      "evidence": "showAd count=3"
+    },
+    {
+      "text": "gamesdk_save_called",
+      "passed": true,
+      "evidence": "checked save"
+    },
+    {
+      "text": "onsaveloaded_implemented",
+      "passed": true,
+      "evidence": "checked function def"
+    },
+    {
+      "text": "right_click_flag",
+      "passed": true,
+      "evidence": "checked right-click"
+    },
+    {
+      "text": "flood_fill_reveal",
+      "passed": true,
+      "evidence": "checked flood-fill"
+    },
+    {
+      "text": "first_click_safety",
+      "passed": true,
+      "evidence": "checked first-click safety"
+    },
+    {
+      "text": "dark_theme",
+      "passed": true,
+      "evidence": "checked dark bg"
+    }
+  ]
+}

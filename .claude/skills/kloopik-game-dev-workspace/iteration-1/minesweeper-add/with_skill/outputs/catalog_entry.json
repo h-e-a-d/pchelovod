@@ -1,0 +1,12 @@
+{
+  "slug": "minesweeper",
+  "title": "Minesweeper",
+  "category": "puzzle",
+  "description": "Clear the minefield without triggering a single bomb. Flag suspects, trust your math.",
+  "emoji": "💣",
+  "controls": "Left click to reveal, right click to flag/unflag",
+  "new": true,
+  "featured": false,
+  "howToPlay": "<p>Left-click any cell to reveal it. If the cell is clear, a number appears showing how many of its 8 neighbours contain mines — use these numbers to deduce which cells are safe. Right-click an unrevealed cell to place or remove a flag on a suspected mine.</p><p>Your <strong>first click is always safe</strong> — mines are placed after you click, so you can never lose immediately. When a cell with <strong>zero</strong> adjacent mines is revealed, the board automatically flood-fills and uncovers all connected safe cells around it.</p><p>You win when every non-mine cell has been revealed. The timer starts on your first click — try to beat your best time. Choose <strong>Beginner</strong> (9×9, 10 mines), <strong>Intermediate</strong> (16×16, 40 mines), or <strong>Expert</strong> (30×16, 99 mines) from the buttons above the board.</p>",
+  "about": "<p>Minesweeper was bundled with Microsoft Windows from version 3.1 (1992) through Windows 7, making it one of the most-played computer games in history. The mechanics originate from earlier mainframe games of the 1960s and 1970s, but the Windows edition standardised the grid sizes and mine counts that are still considered classic today.</p><p>The kloopik version is a faithful pixel-perfect HTML5 recreation with three selectable difficulty levels, first-click safety, instant flood-fill, and a best-time leaderboard stored in your browser session.</p>"
+}

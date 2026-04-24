@@ -1,0 +1,47 @@
+{
+  "eval_id": 2,
+  "eval_name": "minesweeper-add",
+  "prompt": "Add a Minesweeper game to the kloopik portal. Create games/minesweeper/game.html and add the catalog entry to src/_data/games.json.",
+  "assertions": [
+    {
+      "id": "game_html_present",
+      "description": "game.html file exists and is non-empty (>100 chars)"
+    },
+    {
+      "id": "catalog_entry_complete",
+      "description": "catalog_entry.json exists and contains all 8 required fields: slug, title, category, description, emoji, controls, howToPlay, about"
+    },
+    {
+      "id": "gamesdk_showad_preroll",
+      "description": "GameSDK.showAd() called inside init() / startup function (pre-roll ad)"
+    },
+    {
+      "id": "gamesdk_showad_interstitial",
+      "description": "GameSDK.showAd() called on win or game over (interstitial ad)"
+    },
+    {
+      "id": "gamesdk_save_called",
+      "description": "GameSDK.save() called with bestTime or highScore"
+    },
+    {
+      "id": "onsaveloaded_implemented",
+      "description": "onSaveLoaded() function defined and restores bestTime/highScore with null guard"
+    },
+    {
+      "id": "right_click_flag",
+      "description": "Right-click (contextmenu event) used for flagging mines"
+    },
+    {
+      "id": "flood_fill_reveal",
+      "description": "Recursive/BFS flood-fill reveal implemented for empty cells (no adjacent mines)"
+    },
+    {
+      "id": "first_click_safety",
+      "description": "First click is protected from hitting a mine (mines placed after first click)"
+    },
+    {
+      "id": "dark_theme",
+      "description": "Background color is dark (#000, #0a0a0f, or similar)"
+    }
+  ]
+}

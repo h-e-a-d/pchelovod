@@ -1,0 +1,47 @@
+{
+  "eval_id": 0,
+  "eval_name": "tetris-add",
+  "prompt": "Add a Tetris game to kloopik. Create games/tetris/game.html and add the catalog entry to src/_data/games.json.",
+  "assertions": [
+    {
+      "id": "game_html_present",
+      "description": "game.html file exists and is non-empty (>100 chars)"
+    },
+    {
+      "id": "catalog_entry_complete",
+      "description": "catalog_entry.json exists and contains all 8 required fields: slug, title, category, description, emoji, controls, howToPlay, about"
+    },
+    {
+      "id": "gamesdk_showad_preroll",
+      "description": "GameSDK.showAd() called inside init() / startup function (pre-roll ad before gameplay)"
+    },
+    {
+      "id": "gamesdk_showad_interstitial",
+      "description": "GameSDK.showAd() called on game over (interstitial ad)"
+    },
+    {
+      "id": "gamesdk_save_called",
+      "description": "GameSDK.save() called with at least highScore in the payload"
+    },
+    {
+      "id": "onsaveloaded_implemented",
+      "description": "onSaveLoaded() function is defined and restores highScore"
+    },
+    {
+      "id": "all_7_tetrominoes",
+      "description": "All 7 tetrominoes defined (I, O, T, S, Z, J, L) in the piece shapes data"
+    },
+    {
+      "id": "arrow_key_preventdefault",
+      "description": "e.preventDefault() called in keydown handler to prevent iframe scroll"
+    },
+    {
+      "id": "dark_theme",
+      "description": "Background color is dark (#000, #0a0a0f, or similar) — not white/light"
+    },
+    {
+      "id": "line_clear_logic",
+      "description": "Line clearing logic exists (detecting and removing full rows)"
+    }
+  ]
+}

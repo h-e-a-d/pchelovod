@@ -123,6 +123,20 @@ layout: layouts/landing.njk
   </div>
 </section>
 
+{# ── Bees ──────────────────────────────────────────────────── #}
+<section id="bees" class="bees-anim-section" aria-label="{{ 'bees.label' | i18n }}">
+  <div class="bees-anim-sticky">
+    <div class="bees-anim-left" aria-hidden="true">
+      <canvas class="bees-anim-canvas" id="beeCanvas"></canvas>
+    </div>
+    <div class="bees-anim-right reveal">
+      <span class="section-label">{{ "bees.label" | i18n }}</span>
+      <h2>{{ "bees.title" | i18n }}</h2>
+      <p>{{ "bees.body" | i18n }}</p>
+    </div>
+  </div>
+</section>
+
 {# ── Queens ────────────────────────────────────────────────── #}
 <section id="queens" class="queens-section" aria-label="{{ 'queens.label' | i18n }}">
   <div class="queens-inner">

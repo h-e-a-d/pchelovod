@@ -1,0 +1,345 @@
+{
+  "metadata": {
+    "skill_name": "kloopik-game-dev",
+    "skill_path": "/Users/egalvans/.claude/skills/kloopik-game-dev",
+    "executor_model": "claude-sonnet-4-6",
+    "timestamp": "2026-04-16T17:25:00Z",
+    "evals_run": ["tetris-add", "flappy-bird-clone", "minesweeper-add"],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "eval_name": "Tetris",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 116.8,
+        "tokens": 25755,
+        "tool_calls": 6,
+        "errors": 0
+      },
+      "expectations": [
+        { "text": "game_html_present", "passed": true, "evidence": "File exists with content" },
+        {
+          "text": "catalog_entry_complete",
+          "passed": true,
+          "evidence": "All 8 required fields present"
+        },
+        {
+          "text": "gamesdk_showad_preroll",
+          "passed": true,
+          "evidence": "await GameSDK.showAd() in init()"
+        },
+        {
+          "text": "gamesdk_showad_interstitial",
+          "passed": true,
+          "evidence": "showAd() called 2+ times"
+        },
+        { "text": "gamesdk_save_called", "passed": true, "evidence": "GameSDK.save() called" },
+        {
+          "text": "onsaveloaded_implemented",
+          "passed": true,
+          "evidence": "function onSaveLoaded defined"
+        },
+        { "text": "all_7_tetrominoes", "passed": true, "evidence": "I,O,T,S,Z,J,L all present" },
+        {
+          "text": "arrow_key_preventdefault",
+          "passed": true,
+          "evidence": "e.preventDefault() in keydown"
+        },
+        { "text": "dark_theme", "passed": true, "evidence": "Dark background color used" },
+        { "text": "line_clear_logic", "passed": true, "evidence": "splice/clearLine logic found" }
+      ],
+      "notes": [
+        "SRS wall kicks, 7-bag randomizer, ghost piece, DAS repeat — well above baseline feature set"
+      ]
+    },
+    {
+      "eval_id": 0,
+      "eval_name": "Tetris",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 97.2,
+        "tokens": 24705,
+        "tool_calls": 7,
+        "errors": 0
+      },
+      "expectations": [
+        { "text": "game_html_present", "passed": true, "evidence": "File exists with content" },
+        {
+          "text": "catalog_entry_complete",
+          "passed": true,
+          "evidence": "All 8 required fields present"
+        },
+        {
+          "text": "gamesdk_showad_preroll",
+          "passed": true,
+          "evidence": "await GameSDK.showAd() found"
+        },
+        {
+          "text": "gamesdk_showad_interstitial",
+          "passed": true,
+          "evidence": "showAd() called 2+ times"
+        },
+        { "text": "gamesdk_save_called", "passed": true, "evidence": "GameSDK.save() called" },
+        {
+          "text": "onsaveloaded_implemented",
+          "passed": true,
+          "evidence": "function onSaveLoaded defined"
+        },
+        { "text": "all_7_tetrominoes", "passed": true, "evidence": "I,O,T,S,Z,J,L all present" },
+        {
+          "text": "arrow_key_preventdefault",
+          "passed": true,
+          "evidence": "e.preventDefault() found"
+        },
+        { "text": "dark_theme", "passed": true, "evidence": "Dark background color used" },
+        { "text": "line_clear_logic", "passed": true, "evidence": "splice/line clear logic found" }
+      ],
+      "notes": [
+        "Also complete — includes ghost piece, next preview, sidebar HUD. Baseline is strong."
+      ]
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "Flappy Bird",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 91.4,
+        "tokens": 24353,
+        "tool_calls": 6,
+        "errors": 0
+      },
+      "expectations": [
+        { "text": "game_html_present", "passed": true, "evidence": "File exists" },
+        { "text": "catalog_entry_complete", "passed": true, "evidence": "All fields present" },
+        {
+          "text": "gamesdk_showad_preroll",
+          "passed": true,
+          "evidence": "await GameSDK.showAd() in init"
+        },
+        {
+          "text": "gamesdk_showad_interstitial",
+          "passed": true,
+          "evidence": "showAd called on game over"
+        },
+        {
+          "text": "gamesdk_save_called",
+          "passed": true,
+          "evidence": "GameSDK.save({highScore}) found"
+        },
+        {
+          "text": "onsaveloaded_implemented",
+          "passed": true,
+          "evidence": "function onSaveLoaded defined"
+        },
+        {
+          "text": "requestanimationframe_loop",
+          "passed": true,
+          "evidence": "requestAnimationFrame used"
+        },
+        {
+          "text": "gravity_physics",
+          "passed": true,
+          "evidence": "gravity/velocity variables found"
+        },
+        {
+          "text": "pipe_scrolling",
+          "passed": true,
+          "evidence": "pipe objects scroll right-to-left"
+        },
+        { "text": "dark_theme", "passed": true, "evidence": "Dark background used" }
+      ],
+      "notes": [
+        "Bird rotation interpolation, gradual speed ramp, #5c5cff accent pipes — explicit skill color usage"
+      ]
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "Flappy Bird",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 94.8,
+        "tokens": 25953,
+        "tool_calls": 6,
+        "errors": 0
+      },
+      "expectations": [
+        { "text": "game_html_present", "passed": true, "evidence": "File exists" },
+        { "text": "catalog_entry_complete", "passed": true, "evidence": "All fields present" },
+        {
+          "text": "gamesdk_showad_preroll",
+          "passed": true,
+          "evidence": "await GameSDK.showAd() found"
+        },
+        { "text": "gamesdk_showad_interstitial", "passed": true, "evidence": "showAd on death" },
+        { "text": "gamesdk_save_called", "passed": true, "evidence": "GameSDK.save found" },
+        {
+          "text": "onsaveloaded_implemented",
+          "passed": true,
+          "evidence": "function onSaveLoaded defined"
+        },
+        {
+          "text": "requestanimationframe_loop",
+          "passed": true,
+          "evidence": "requestAnimationFrame used"
+        },
+        { "text": "gravity_physics", "passed": true, "evidence": "gravity variable found" },
+        { "text": "pipe_scrolling", "passed": true, "evidence": "pipe scrolling implemented" },
+        {
+          "text": "dark_theme",
+          "passed": true,
+          "evidence": "Sky gradient — departs from pure #000 aesthetic"
+        }
+      ],
+      "notes": [
+        "Canvas 2D art (animated bird, clouds, gradient sky) — more polished visually but departs from minimal dark aesthetic"
+      ]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "Minesweeper",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 178.3,
+        "tokens": 32243,
+        "tool_calls": 9,
+        "errors": 0
+      },
+      "expectations": [
+        { "text": "game_html_present", "passed": true, "evidence": "File exists" },
+        { "text": "catalog_entry_complete", "passed": true, "evidence": "All fields present" },
+        {
+          "text": "gamesdk_showad_preroll",
+          "passed": true,
+          "evidence": "await GameSDK.showAd() in init"
+        },
+        {
+          "text": "gamesdk_showad_interstitial",
+          "passed": true,
+          "evidence": "showAd on win and loss"
+        },
+        {
+          "text": "gamesdk_save_called",
+          "passed": true,
+          "evidence": "GameSDK.save({bestTimes}) found"
+        },
+        {
+          "text": "onsaveloaded_implemented",
+          "passed": true,
+          "evidence": "function onSaveLoaded with ?? null guards"
+        },
+        {
+          "text": "right_click_flag",
+          "passed": true,
+          "evidence": "contextmenu event handler found"
+        },
+        { "text": "flood_fill_reveal", "passed": true, "evidence": "BFS queue reveal implemented" },
+        {
+          "text": "first_click_safety",
+          "passed": true,
+          "evidence": "placeMines called after first click"
+        },
+        { "text": "dark_theme", "passed": true, "evidence": "#0a0a0f background" }
+      ],
+      "notes": [
+        "3 difficulty presets, bestTimes per-difficulty, #5c5cff accents — also wrote to actual portal games.json (9 tool calls vs baseline 6)"
+      ]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "Minesweeper",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 87.2,
+        "tokens": 23746,
+        "tool_calls": 6,
+        "errors": 0
+      },
+      "expectations": [
+        { "text": "game_html_present", "passed": true, "evidence": "File exists" },
+        { "text": "catalog_entry_complete", "passed": true, "evidence": "All fields present" },
+        {
+          "text": "gamesdk_showad_preroll",
+          "passed": true,
+          "evidence": "await GameSDK.showAd() found"
+        },
+        {
+          "text": "gamesdk_showad_interstitial",
+          "passed": true,
+          "evidence": "showAd on win and loss"
+        },
+        { "text": "gamesdk_save_called", "passed": true, "evidence": "GameSDK.save found" },
+        {
+          "text": "onsaveloaded_implemented",
+          "passed": true,
+          "evidence": "function onSaveLoaded defined"
+        },
+        { "text": "right_click_flag", "passed": true, "evidence": "contextmenu event found" },
+        { "text": "flood_fill_reveal", "passed": true, "evidence": "flood/reveal logic found" },
+        {
+          "text": "first_click_safety",
+          "passed": true,
+          "evidence": "safe-first click implemented"
+        },
+        { "text": "dark_theme", "passed": true, "evidence": "Dark background used" }
+      ],
+      "notes": [
+        "Bevel-style cell art, color-coded numbers 1-8, drawn mine sprites — more artistically detailed"
+      ]
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": { "mean": 1.0, "stddev": 0.0, "min": 1.0, "max": 1.0 },
+      "time_seconds": { "mean": 128.8, "stddev": 37.6, "min": 91.4, "max": 178.3 },
+      "tokens": { "mean": 27450, "stddev": 3420, "min": 24353, "max": 32243 }
+    },
+    "without_skill": {
+      "pass_rate": { "mean": 1.0, "stddev": 0.0, "min": 1.0, "max": 1.0 },
+      "time_seconds": { "mean": 93.1, "stddev": 4.2, "min": 87.2, "max": 97.2 },
+      "tokens": { "mean": 24801, "stddev": 939, "min": 23746, "max": 25953 }
+    },
+    "delta": {
+      "pass_rate": "+0.00",
+      "time_seconds": "+35.7",
+      "tokens": "+2649"
+    }
+  },
+  "notes": [
+    "All assertions pass in both configurations — regex checks are non-discriminating. Qualitative review is the key signal.",
+    "with_skill runs average 35.7s slower and ~2650 more tokens — overhead of reading the skill file.",
+    "with_skill Minesweeper used 9 tool calls vs 6 (baseline) — went further, also writing to actual portal files.",
+    "Key qualitative differences: dark theme adherence (with_skill uses #5c5cff accent explicitly), HUD layout (monospace plain text vs styled divs), architecture pattern naming (Pattern A/B/C)."
+  ]
+}

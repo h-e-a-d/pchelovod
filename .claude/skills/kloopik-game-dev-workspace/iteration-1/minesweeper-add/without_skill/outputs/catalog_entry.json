@@ -1,0 +1,12 @@
+{
+  "slug": "minesweeper",
+  "title": "Minesweeper",
+  "category": "puzzle",
+  "description": "Clear the minefield without detonating a single bomb. Flag the mines, use your logic, and survive.",
+  "emoji": "💣",
+  "controls": "Left-click to reveal, right-click to flag",
+  "new": true,
+  "featured": false,
+  "howToPlay": "<p>Left-click any cell to reveal it. If the cell is safe, it shows a number indicating how many of its eight neighbouring cells contain mines. Use those numbers to deduce which cells are safe and which hide mines.</p><p>Right-click (or long-press on mobile) a cell to place a flag on it, marking it as a suspected mine. Flag all mines and reveal every safe cell to win. If you click a mine, the game is over.</p><p>The first click is always safe — the board is generated after your first move so you can never lose immediately. Work outward from open areas, cross-reference numbers, and use process of elimination to clear the whole board.</p>",
+  "about": "<p>Minesweeper was popularised by its inclusion in Microsoft Windows 3.1 in 1992, where it was originally intended to teach users how to use a mouse. It quickly became one of the most-played computer games of all time, with millions of people learning to count mines during coffee breaks throughout the 1990s and 2000s.</p><p>The version on kloopik is a faithful recreation of the classic 9x9 beginner layout with 10 mines. It runs entirely in your browser using HTML5 Canvas — no plugins required.</p>"
+}

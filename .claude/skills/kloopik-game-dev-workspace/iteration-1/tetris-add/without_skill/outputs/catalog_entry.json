@@ -1,0 +1,12 @@
+{
+  "slug": "tetris",
+  "title": "Tetris",
+  "category": "puzzle",
+  "description": "Stack falling tetrominoes, clear lines, and survive as long as you can. A timeless puzzle classic.",
+  "emoji": "🟦",
+  "controls": "Arrow keys or WASD to move/rotate, Space to hard-drop, P to pause",
+  "new": true,
+  "featured": true,
+  "howToPlay": "<p>Tetrominoes — seven differently shaped pieces made of four blocks — fall from the top of the board one at a time. Use the <strong>left and right arrow keys</strong> (or <strong>A / D</strong>) to slide the falling piece sideways, and the <strong>up arrow</strong> (or <strong>W</strong>) to rotate it clockwise. Press the <strong>down arrow</strong> (or <strong>S</strong>) to soft-drop a piece one row at a time, or hit <strong>Space</strong> to hard-drop it instantly to the lowest valid position.</p><p>When you fill an entire horizontal row with blocks, that row is cleared and everything above it drops down. Clearing multiple rows at once awards bonus points — clearing four rows simultaneously (a \"Tetris\") gives the highest reward. The game ends when stacked pieces reach the top of the board.</p><p>The level increases every 10 lines cleared, speeding up the drop rate. Plan several moves ahead, keep the board as flat as possible, and save your I-piece for four-line clears to maximise your score.</p>",
+  "about": "<p>Tetris was created in 1984 by Soviet software engineer Alexey Pajitnov while working at the Dorodnicyn Computing Centre of the Academy of Science in Moscow. The name is a portmanteau of \"tetromino\" (the four-cell geometric shapes used as pieces) and Pajitnov's favourite sport, tennis.</p><p>After spreading through the Soviet Union on floppy disk, Tetris became a global phenomenon when it launched with the Nintendo Game Boy in 1989 — a bundling decision widely credited with driving the handheld's massive success. It has since sold hundreds of millions of copies across virtually every platform ever made, making it one of the best-selling video games of all time.</p><p>The kloopik version faithfully recreates the classic rules — seven tetrominoes, line clears, increasing speed, and a ghost-piece preview — running entirely in your browser with HTML5 Canvas. No plugins or downloads required.</p>"
+}

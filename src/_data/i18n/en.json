@@ -72,7 +72,11 @@
   "beehive": {
     "aria": "Wake the bees"
   },
-  "langNames": { "en": "English", "ru": "Русский", "tg": "Тоҷикӣ" },
+  "langNames": {
+    "en": "English",
+    "ru": "Русский",
+    "tg": "Тоҷикӣ"
+  },
   "form": {
     "name": "Your name",
     "email": "Email",
@@ -80,5 +84,10 @@
     "submit": "Send message",
     "success": "Thanks — we'll be in touch.",
     "error": "Something went wrong. Please email us directly."
+  },
+  "bees": {
+    "label": "The Colony",
+    "title": "Life inside the hive",
+    "body": "Deep inside an active Tajik mountain hive, thousands of workers move with quiet precision — drawing wax, curing nectar, sealing each cell. This is where raw mountain honey begins."
   }
 }

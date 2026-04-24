@@ -1,0 +1,32 @@
+{
+  "skill_name": "kloopik-game-dev",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Add a Tetris game to kloopik. Create games/tetris/game.html and add the catalog entry to src/_data/games.json.",
+      "expected_output": "A working game.html using GameSDK (pre-roll ad, save/load highScore, interstitial on game over), and a complete games.json entry with all required fields.",
+      "files": [
+        "/Users/egalvans/Downloads/Head/Claude/portal/games/_game-template.html",
+        "/Users/egalvans/Downloads/Head/Claude/portal/src/_data/games.json"
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "Implement a Flappy Bird clone for the kloopik portal. Create games/flappy/game.html and add the catalog entry to src/_data/games.json.",
+      "expected_output": "A working game.html using requestAnimationFrame physics loop, GameSDK integration, and a complete games.json catalog entry.",
+      "files": [
+        "/Users/egalvans/Downloads/Head/Claude/portal/games/_game-template.html",
+        "/Users/egalvans/Downloads/Head/Claude/portal/src/_data/games.json"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Add a Minesweeper game to the kloopik portal. Create games/minesweeper/game.html and add the catalog entry to src/_data/games.json.",
+      "expected_output": "A working game.html with click-based board interaction, mine flagging, win/loss detection, GameSDK save (highScore or best time), and a complete games.json entry.",
+      "files": [
+        "/Users/egalvans/Downloads/Head/Claude/portal/games/_game-template.html",
+        "/Users/egalvans/Downloads/Head/Claude/portal/src/_data/games.json"
+      ]
+    }
+  ]
+}

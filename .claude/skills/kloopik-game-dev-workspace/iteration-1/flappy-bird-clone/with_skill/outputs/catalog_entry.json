@@ -1,0 +1,12 @@
+{
+  "slug": "flappy",
+  "title": "Flappy Bird",
+  "category": "arcade",
+  "description": "Tap to flap through the pipes. One hit and it's over — how far can you go?",
+  "emoji": "🐦",
+  "controls": "Space or tap/click",
+  "new": true,
+  "featured": false,
+  "howToPlay": "<p>Press <strong>Space</strong> or <strong>tap/click</strong> the screen to make the bird flap upward. Gravity constantly pulls the bird down, so you must keep tapping to stay airborne. Fly through the gaps between the green pipes without touching them, the ground, or the ceiling.</p><p>Each pair of pipes you clear earns you one point. The game gets gradually faster as your score climbs, so precise, controlled flaps beat frantic button mashing. The game ends the instant the bird touches anything — then an ad plays and you can restart immediately.</p>",
+  "about": "<p>Flappy Bird was created by Vietnamese developer Dong Nguyen and released in 2013. Despite its simple one-button mechanic, it became a viral sensation — praised and criticized in equal measure for its unforgiving difficulty. Nguyen famously removed it from app stores in 2014, making it even more legendary.</p><p>This kloopik recreation captures the same punishing physics in your browser using HTML5 Canvas. No installs, no accounts — just you, one button, and the pipes.</p>"
+}

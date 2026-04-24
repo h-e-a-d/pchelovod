@@ -1,0 +1,47 @@
+{
+  "eval_id": 1,
+  "eval_name": "flappy-bird-clone",
+  "prompt": "Implement a Flappy Bird clone for the kloopik portal. Create games/flappy/game.html and add the catalog entry to src/_data/games.json.",
+  "assertions": [
+    {
+      "id": "game_html_present",
+      "description": "game.html file exists and is non-empty (>100 chars)"
+    },
+    {
+      "id": "catalog_entry_complete",
+      "description": "catalog_entry.json exists and contains all 8 required fields: slug, title, category, description, emoji, controls, howToPlay, about"
+    },
+    {
+      "id": "gamesdk_showad_preroll",
+      "description": "GameSDK.showAd() called inside init() / startup function (pre-roll ad)"
+    },
+    {
+      "id": "gamesdk_showad_interstitial",
+      "description": "GameSDK.showAd() called on game over (interstitial ad)"
+    },
+    {
+      "id": "gamesdk_save_called",
+      "description": "GameSDK.save() called with highScore in the payload"
+    },
+    {
+      "id": "onsaveloaded_implemented",
+      "description": "onSaveLoaded() function is defined and restores highScore"
+    },
+    {
+      "id": "requestanimationframe_loop",
+      "description": "requestAnimationFrame used for the main game loop (not setInterval)"
+    },
+    {
+      "id": "gravity_physics",
+      "description": "Bird has gravity (velocity increases downward each frame) and upward flap on input"
+    },
+    {
+      "id": "pipe_scrolling",
+      "description": "Pipe/obstacle objects scroll from right to left with gap for bird to pass through"
+    },
+    {
+      "id": "dark_theme",
+      "description": "Background color is dark (#000, #0a0a0f, or similar)"
+    }
+  ]
+}

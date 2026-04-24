@@ -927,6 +927,62 @@ a:hover {
   font-family: var(--font-sans);
 }
 
+/* ─── Section: Bees (scroll-driven frame animation) ─────────────────────── */
+
+.bees-anim-section {
+  height: 400vh;
+  background: #f5eee1;
+  position: relative;
+}
+
+.bees-anim-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: #f5eee1;
+}
+
+.bees-anim-left {
+  flex: 0 0 50%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  box-sizing: border-box;
+}
+
+.bees-anim-canvas {
+  display: block;
+  max-height: 88vh;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+}
+
+.bees-anim-right {
+  flex: 0 0 50%;
+  padding: 2rem clamp(1.5rem, 4vw, 4rem) 2rem 2rem;
+}
+
+.bees-anim-right .section-label {
+  color: var(--color-earth-700);
+}
+
+.bees-anim-right h2 {
+  color: var(--color-slate-900);
+  margin-bottom: 1.5rem;
+}
+
+.bees-anim-right p {
+  font-size: var(--text-lg);
+  color: var(--color-ink-muted);
+  line-height: 1.75;
+}
+
 /* ─── Section: Queens ────────────────────────────────────────────────────── */
 
 .queens-section {
@@ -1722,6 +1778,27 @@ body:not(.page-landing) main {
   .beehives-badge {
     display: none;
   }
+  .bees-anim-section {
+    height: 280vh;
+  }
+  .bees-anim-sticky {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1.5rem;
+    gap: 2rem;
+    height: 100vh;
+  }
+  .bees-anim-left {
+    flex: none;
+    width: 100%;
+    height: 45vh;
+    padding: 0;
+  }
+  .bees-anim-right {
+    flex: none;
+    padding: 0;
+  }
   .queens-inner {
     grid-template-columns: 1fr;
   }
@@ -1879,5 +1956,13 @@ body:not(.page-landing) main {
   }
   .beehive {
     display: none;
+  }
+  .bees-anim-section {
+    height: auto;
+  }
+  .bees-anim-sticky {
+    position: relative;
+    height: auto;
+    padding: clamp(4rem, 8vw, 7rem) clamp(1.25rem, 4vw, 2.5rem);
   }
 }

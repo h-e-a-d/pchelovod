@@ -1,0 +1,12 @@
+{
+  "slug": "tetris",
+  "title": "Tetris",
+  "category": "puzzle",
+  "description": "Stack falling pieces, clear lines, survive as long as you can.",
+  "emoji": "🟦",
+  "controls": "Arrow keys, Z to rotate, Space to hard drop",
+  "new": true,
+  "featured": false,
+  "howToPlay": "<p>Use the <strong>left/right arrows</strong> to move pieces sideways and <strong>up arrow</strong> or <strong>Z</strong> to rotate. Press <strong>down arrow</strong> to soft-drop one row at a time, or <strong>Space</strong> to instantly hard-drop the piece to the bottom. Clear full horizontal lines to score points — they disappear and everything above falls down.</p><p>Lines cleared at once award bonus points: two lines scores 3×, three lines scores 5×, and a Tetris (four lines) scores 8× the base value. The level increases every 10 lines, making pieces fall faster. The game ends when a new piece has no room to spawn at the top of the board.</p>",
+  "about": "<p>Tetris was created by Soviet software engineer Alexey Pajitnov in 1984 while working at the Soviet Academy of Sciences in Moscow. The name comes from the Greek prefix <em>tetra-</em> (all pieces contain exactly four squares) combined with Pajitnov's favourite sport, tennis.</p><p>The game became a global phenomenon after being bundled with the original Game Boy in 1989, and is widely regarded as one of the greatest video games ever made. This version on kloopik implements all seven classic tetrominoes — I, O, T, S, Z, J, and L — with SRS-style wall kicks, ghost piece preview, and a 7-bag randomizer for fair piece distribution.</p>"
+}

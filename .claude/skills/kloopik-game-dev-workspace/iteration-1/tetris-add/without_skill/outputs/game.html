@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tetris</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; gap: 16px; }
+
+    #sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      color: #fff;
+      font-family: monospace;
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+
+    .panel {
+      border: 1px solid #333;
+      padding: 10px 14px;
+      border-radius: 4px;
+    }
+
+    .panel-label {
+      color: #666;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+
+    .panel-value {
+      font-size: 20px;
+      color: #fff;
+    }
+
+    #next-canvas {
+      display: block;
+      margin-top: 4px;
+    }
+
+    canvas#canvas {
+      display: block;
+      border: 1px solid #222;
+      image-rendering: pixelated;
+    }
+
+    /* AdSense overlay */
+    #ad-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.92);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 999; gap: 16px;
+    }
+    #ad-overlay.hidden { display: none; }
+    #ad-container { width: 320px; min-height: 50px; }
+    #ad-skip {
+      background: none; border: 1px solid #444;
+      padding: 6px 16px; border-radius: 4px;
+      color: #fff; font-family: sans-serif;
+      font-size: 13px; cursor: pointer;
+    }
+
+    /* Game over screen */
+    #gameover {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 500; gap: 12px; font-family: monospace; color: #fff;
+    }
+    #gameover.hidden { display: none; }
+    #gameover h2 { font-size: 28px; letter-spacing: 4px; color: #ff5c5c; }
+    #gameover p  { font-size: 14px; color: #aaa; }
+    #restart-btn {
+      margin-top: 8px;
+      padding: 10px 28px;
+      background: none; border: 1px solid #5c5cff;
+      border-radius: 4px; color: #5c5cff;
+      font-family: monospace; font-size: 14px;
+      cursor: pointer; letter-spacing: 2px;
+    }
+    #restart-btn:hover { background: #5c5cff; color: #000; }
+  </style>
+  <!-- Google AdSense for Games -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-REPLACE_WITH_YOUR_PUBLISHER_ID" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<!-- Ad overlay -->
+<div id="ad-overlay" class="hidden">
+  <ins class="adsbygoogle"
+       id="ad-container"
+       style="display:block"
+       data-ad-client="ca-pub-REPLACE_WITH_YOUR_PUBLISHER_ID"
+       data-ad-slot="REPLACE_WITH_AD_SLOT_ID"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <button id="ad-skip">Skip Ad ›</button>
+</div>
+
+<!-- Game over screen -->
+<div id="gameover" class="hidden">
+  <h2>GAME OVER</h2>
+  <p id="go-score"></p>
+  <button id="restart-btn">PLAY AGAIN</button>
+</div>
+
+<!-- Sidebar -->
+<div id="sidebar">
+  <div class="panel">
+    <div class="panel-label">Score</div>
+    <div class="panel-value" id="score-el">0</div>
+  </div>
+  <div class="panel">
+    <div class="panel-label">Best</div>
+    <div class="panel-value" id="hi-el">0</div>
+  </div>
+  <div class="panel">
+    <div class="panel-label">Level</div>
+    <div class="panel-value" id="level-el">1</div>
+  </div>
+  <div class="panel">
+    <div class="panel-label">Lines</div>
+    <div class="panel-value" id="lines-el">0</div>
+  </div>
+  <div class="panel">
+    <div class="panel-label">Next</div>
+    <canvas id="next-canvas" width="80" height="80"></canvas>
+  </div>
+</div>
+
+<!-- Main board -->
+<canvas id="canvas"></canvas>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// GAME SDK — copy verbatim into every game, do not modify
+// ═══════════════════════════════════════════════════════════════════
+
+const GameSDK = (() => {
+  let saveTimer = null;
+  const SAVE_DEBOUNCE_MS = 2000;
+
+  window.addEventListener('message', (e) => {
+    if (e.data?.type === 'load-save') {
+      if (typeof onSaveLoaded === 'function') onSaveLoaded(e.data.data);
+    }
+  });
+
+  function save(data) {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      parent.postMessage({ type: 'save', data }, '*');
+    }, SAVE_DEBOUNCE_MS);
+  }
+
+  const overlay = document.getElementById('ad-overlay');
+  const skipBtn = document.getElementById('ad-skip');
+  let adResolve = null;
+  let skipDelay = 5;
+  skipBtn.disabled = true;
+  skipBtn.textContent = `Skip Ad (${skipDelay})`;
+
+  function runAdTimer() {
+    const t = setInterval(() => {
+      skipDelay--;
+      skipBtn.textContent = skipDelay > 0 ? `Skip Ad (${skipDelay})` : 'Skip Ad ›';
+      if (skipDelay <= 0) { skipBtn.disabled = false; clearInterval(t); }
+    }, 1000);
+  }
+
+  function showAd() {
+    return new Promise((resolve) => {
+      adResolve = resolve;
+      overlay.classList.remove('hidden');
+      skipDelay = 5; skipBtn.disabled = true;
+      skipBtn.textContent = `Skip Ad (${skipDelay})`;
+      runAdTimer();
+      try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+    });
+  }
+
+  skipBtn.addEventListener('click', () => {
+    overlay.classList.add('hidden');
+    if (adResolve) { adResolve(); adResolve = null; }
+  });
+
+  return { save, showAd };
+})();
+
+// ═══════════════════════════════════════════════════════════════════
+// TETRIS
+// ═══════════════════════════════════════════════════════════════════
+
+const canvas    = document.getElementById('canvas');
+const ctx       = canvas.getContext('2d');
+const nextCvs   = document.getElementById('next-canvas');
+const nextCtx   = nextCvs.getContext('2d');
+const scoreEl   = document.getElementById('score-el');
+const hiEl      = document.getElementById('hi-el');
+const levelEl   = document.getElementById('level-el');
+const linesEl   = document.getElementById('lines-el');
+const goScreen  = document.getElementById('gameover');
+const goScoreEl = document.getElementById('go-score');
+const restartBtn= document.getElementById('restart-btn');
+
+// Board dimensions
+const COLS = 10;
+const ROWS = 20;
+const CELL = 30;
+canvas.width  = COLS * CELL;
+canvas.height = ROWS * CELL;
+
+// Tetromino definitions (each piece = array of 4 [col, row] offsets)
+const PIECES = {
+  I: { color: '#00cfcf', cells: [[0,1],[1,1],[2,1],[3,1]] },
+  O: { color: '#cfcf00', cells: [[0,0],[1,0],[0,1],[1,1]] },
+  T: { color: '#9f00cf', cells: [[1,0],[0,1],[1,1],[2,1]] },
+  S: { color: '#00cf00', cells: [[1,0],[2,0],[0,1],[1,1]] },
+  Z: { color: '#cf0000', cells: [[0,0],[1,0],[1,1],[2,1]] },
+  J: { color: '#0000cf', cells: [[0,0],[0,1],[1,1],[2,1]] },
+  L: { color: '#cf7f00', cells: [[2,0],[0,1],[1,1],[2,1]] },
+};
+const PIECE_KEYS = Object.keys(PIECES);
+
+// Points awarded for clearing 1/2/3/4 lines at once
+const LINE_POINTS = [0, 100, 300, 500, 800];
+
+// ── State ────────────────────────────────────────────────────────
+
+let board, current, next, score, highScore, level, linesCleared;
+let dropInterval, lastDrop, raf, paused, gameRunning;
+let lockTimer = null;
+const LOCK_DELAY_MS = 500;
+
+// ── Save / Load ──────────────────────────────────────────────────
+
+function onSaveLoaded(data) {
+  if (typeof data?.highScore === 'number') {
+    highScore = data.highScore;
+    hiEl.textContent = highScore;
+  }
+}
+
+// ── Helpers ──────────────────────────────────────────────────────
+
+function randomPiece() {
+  const key = PIECE_KEYS[Math.floor(Math.random() * PIECE_KEYS.length)];
+  const def = PIECES[key];
+  // spawn at top-centre of board
+  const spawnCol = Math.floor(COLS / 2) - 2;
+  return {
+    color: def.color,
+    cells: def.cells.map(([c, r]) => [c + spawnCol, r]),
+  };
+}
+
+function rotate(cells) {
+  // Rotate 90° clockwise around bounding-box centre
+  const minC = Math.min(...cells.map(([c]) => c));
+  const minR = Math.min(...cells.map(([, r]) => r));
+  const maxC = Math.max(...cells.map(([c]) => c));
+  const maxR = Math.max(...cells.map(([, r]) => r));
+  const size = Math.max(maxC - minC, maxR - minR);
+  return cells.map(([c, r]) => [minC + (r - minR), minR + (size - (c - minC))]);
+}
+
+function isValid(cells) {
+  return cells.every(([c, r]) =>
+    c >= 0 && c < COLS && r >= 0 && r < ROWS && !board[r][c]
+  );
+}
+
+function place(cells, color) {
+  cells.forEach(([c, r]) => { board[r][c] = color; });
+}
+
+function clearLines() {
+  let cleared = 0;
+  for (let r = ROWS - 1; r >= 0; r--) {
+    if (board[r].every(cell => cell !== null)) {
+      board.splice(r, 1);
+      board.unshift(Array(COLS).fill(null));
+      cleared++;
+      r++; // re-check same row index
+    }
+  }
+  return cleared;
+}
+
+function calcDropInterval(lvl) {
+  // milliseconds between automatic drops; speeds up with level
+  return Math.max(80, 800 - (lvl - 1) * 70);
+}
+
+function ghostCells() {
+  // project current piece straight down
+  let ghost = current.cells.map(c => [...c]);
+  while (isValid(ghost.map(([c, r]) => [c, r + 1]))) {
+    ghost = ghost.map(([c, r]) => [c, r + 1]);
+  }
+  return ghost;
+}
+
+// ── Game loop ────────────────────────────────────────────────────
+
+function startGame() {
+  board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+  score = 0;
+  level = 1;
+  linesCleared = 0;
+  paused = false;
+  gameRunning = true;
+  dropInterval = calcDropInterval(level);
+  lastDrop = performance.now();
+  current = randomPiece();
+  next    = randomPiece();
+  goScreen.classList.add('hidden');
+  updateUI();
+  if (raf) cancelAnimationFrame(raf);
+  raf = requestAnimationFrame(loop);
+}
+
+function loop(ts) {
+  if (!gameRunning) return;
+  if (!paused && ts - lastDrop >= dropInterval) {
+    lastDrop = ts;
+    moveDown();
+  }
+  draw();
+  raf = requestAnimationFrame(loop);
+}
+
+function moveDown() {
+  const moved = current.cells.map(([c, r]) => [c, r + 1]);
+  if (isValid(moved)) {
+    current.cells = moved;
+    if (lockTimer) { clearTimeout(lockTimer); lockTimer = null; }
+  } else {
+    lockPiece();
+  }
+}
+
+function lockPiece() {
+  place(current.cells, current.color);
+  const lines = clearLines();
+  if (lines > 0) {
+    const gained = LINE_POINTS[lines] * level;
+    score += gained;
+    linesCleared += lines;
+    const newLevel = Math.floor(linesCleared / 10) + 1;
+    if (newLevel !== level) {
+      level = newLevel;
+      dropInterval = calcDropInterval(level);
+    }
+    if (score > highScore) {
+      highScore = score;
+      hiEl.textContent = highScore;
+      GameSDK.save({ highScore });
+    }
+    updateUI();
+  }
+  current = next;
+  next    = randomPiece();
+  drawNext();
+
+  // Check game over: new piece collides immediately
+  if (!isValid(current.cells)) {
+    endGame();
+  }
+}
+
+async function endGame() {
+  gameRunning = false;
+  cancelAnimationFrame(raf);
+  GameSDK.save({ highScore });
+  goScoreEl.textContent = `Score: ${score}  |  Best: ${highScore}`;
+  goScreen.classList.remove('hidden');
+  await GameSDK.showAd();
+}
+
+function updateUI() {
+  scoreEl.textContent = score;
+  levelEl.textContent = level;
+  linesEl.textContent = linesCleared;
+}
+
+// ── Drawing ──────────────────────────────────────────────────────
+
+function drawCell(context, c, r, color, alpha = 1) {
+  const x = c * CELL;
+  const y = r * CELL;
+  context.globalAlpha = alpha;
+  context.fillStyle = color;
+  context.fillRect(x + 1, y + 1, CELL - 2, CELL - 2);
+  // highlight edge
+  context.fillStyle = 'rgba(255,255,255,0.15)';
+  context.fillRect(x + 1, y + 1, CELL - 2, 4);
+  context.fillStyle = 'rgba(0,0,0,0.25)';
+  context.fillRect(x + 1, y + CELL - 5, CELL - 2, 4);
+  context.globalAlpha = 1;
+}
+
+function draw() {
+  // Background
+  ctx.fillStyle = '#111';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Grid
+  ctx.strokeStyle = '#1a1a1a';
+  ctx.lineWidth = 0.5;
+  for (let c = 0; c <= COLS; c++) {
+    ctx.beginPath(); ctx.moveTo(c * CELL, 0); ctx.lineTo(c * CELL, canvas.height); ctx.stroke();
+  }
+  for (let r = 0; r <= ROWS; r++) {
+    ctx.beginPath(); ctx.moveTo(0, r * CELL); ctx.lineTo(canvas.width, r * CELL); ctx.stroke();
+  }
+
+  // Placed cells
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (board[r][c]) drawCell(ctx, c, r, board[r][c]);
+    }
+  }
+
+  // Ghost piece
+  const ghost = ghostCells();
+  ghost.forEach(([c, r]) => drawCell(ctx, c, r, current.color, 0.2));
+
+  // Active piece
+  current.cells.forEach(([c, r]) => drawCell(ctx, c, r, current.color));
+}
+
+function drawNext() {
+  nextCtx.fillStyle = '#111';
+  nextCtx.fillRect(0, 0, nextCvs.width, nextCvs.height);
+  // centre the piece preview in the 80x80 canvas with CELL=20
+  const previewCell = 20;
+  next.cells.forEach(([c, r]) => {
+    const px = c * previewCell - Math.min(...next.cells.map(([cc]) => cc)) * previewCell;
+    const pr = r * previewCell;
+    nextCtx.fillStyle = next.color;
+    nextCtx.fillRect(px + 1, pr + 1, previewCell - 2, previewCell - 2);
+    nextCtx.fillStyle = 'rgba(255,255,255,0.15)';
+    nextCtx.fillRect(px + 1, pr + 1, previewCell - 2, 4);
+  });
+}
+
+// ── Input ────────────────────────────────────────────────────────
+
+document.addEventListener('keydown', (e) => {
+  if (!gameRunning || paused) return;
+
+  switch (e.key) {
+    case 'ArrowLeft': case 'a': case 'A': {
+      const moved = current.cells.map(([c, r]) => [c - 1, r]);
+      if (isValid(moved)) current.cells = moved;
+      e.preventDefault();
+      break;
+    }
+    case 'ArrowRight': case 'd': case 'D': {
+      const moved = current.cells.map(([c, r]) => [c + 1, r]);
+      if (isValid(moved)) current.cells = moved;
+      e.preventDefault();
+      break;
+    }
+    case 'ArrowDown': case 's': case 'S': {
+      const moved = current.cells.map(([c, r]) => [c, r + 1]);
+      if (isValid(moved)) {
+        current.cells = moved;
+        lastDrop = performance.now(); // reset gravity timer
+      } else {
+        lockPiece();
+      }
+      e.preventDefault();
+      break;
+    }
+    case 'ArrowUp': case 'w': case 'W': case 'x': case 'X': {
+      // Rotate with wall-kick
+      let rotated = rotate(current.cells);
+      const kicks = [0, -1, 1, -2, 2];
+      let placed = false;
+      for (const kick of kicks) {
+        const kicked = rotated.map(([c, r]) => [c + kick, r]);
+        if (isValid(kicked)) { current.cells = kicked; placed = true; break; }
+      }
+      e.preventDefault();
+      break;
+    }
+    case ' ': {
+      // Hard drop
+      while (isValid(current.cells.map(([c, r]) => [c, r + 1]))) {
+        current.cells = current.cells.map(([c, r]) => [c, r + 1]);
+      }
+      lockPiece();
+      lastDrop = performance.now();
+      e.preventDefault();
+      break;
+    }
+    case 'p': case 'P': case 'Escape': {
+      paused = !paused;
+      if (!paused) { lastDrop = performance.now(); raf = requestAnimationFrame(loop); }
+      e.preventDefault();
+      break;
+    }
+  }
+});
+
+// ── Touch / swipe support ─────────────────────────────────────────
+let touchStartX = 0, touchStartY = 0;
+
+canvas.addEventListener('touchstart', (e) => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  e.preventDefault();
+}, { passive: false });
+
+canvas.addEventListener('touchend', (e) => {
+  if (!gameRunning || paused) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  const absDx = Math.abs(dx), absDy = Math.abs(dy);
+
+  if (absDx < 10 && absDy < 10) {
+    // tap = rotate
+    let rotated = rotate(current.cells);
+    const kicks = [0, -1, 1, -2, 2];
+    for (const kick of kicks) {
+      const kicked = rotated.map(([c, r]) => [c + kick, r]);
+      if (isValid(kicked)) { current.cells = kicked; break; }
+    }
+  } else if (absDx > absDy) {
+    // horizontal swipe
+    const moved = current.cells.map(([c, r]) => [c + (dx > 0 ? 1 : -1), r]);
+    if (isValid(moved)) current.cells = moved;
+  } else if (dy > 30) {
+    // swipe down = hard drop
+    while (isValid(current.cells.map(([c, r]) => [c, r + 1]))) {
+      current.cells = current.cells.map(([c, r]) => [c, r + 1]);
+    }
+    lockPiece();
+    lastDrop = performance.now();
+  }
+  e.preventDefault();
+}, { passive: false });
+
+// ── Restart button ────────────────────────────────────────────────
+restartBtn.addEventListener('click', startGame);
+
+// ── Auto-save on visibility change ────────────────────────────────
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) GameSDK.save({ highScore });
+});
+
+// ── Boot ──────────────────────────────────────────────────────────
+async function init() {
+  highScore = 0;
+  hiEl.textContent = 0;
+  await GameSDK.showAd(); // pre-roll
+  startGame();
+}
+
+init();
+</script>
+</body>
+</html>

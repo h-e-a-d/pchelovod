@@ -1,0 +1,57 @@
+{
+  "pass_count": 10,
+  "total": 10,
+  "pass_rate": 1.0,
+  "expectations": [
+    {
+      "text": "game_html_present",
+      "passed": true,
+      "evidence": "len=17687"
+    },
+    {
+      "text": "catalog_entry_complete",
+      "passed": true,
+      "evidence": "all fields present, slug=tetris"
+    },
+    {
+      "text": "gamesdk_showad_preroll",
+      "passed": true,
+      "evidence": "checked preroll pattern"
+    },
+    {
+      "text": "gamesdk_showad_interstitial",
+      "passed": true,
+      "evidence": "showAd count=2"
+    },
+    {
+      "text": "gamesdk_save_called",
+      "passed": true,
+      "evidence": "checked save call"
+    },
+    {
+      "text": "onsaveloaded_implemented",
+      "passed": true,
+      "evidence": "checked function def"
+    },
+    {
+      "text": "all_7_tetrominoes",
+      "passed": true,
+      "evidence": "checked piece defs"
+    },
+    {
+      "text": "arrow_key_preventdefault",
+      "passed": true,
+      "evidence": "checked preventDefault"
+    },
+    {
+      "text": "dark_theme",
+      "passed": true,
+      "evidence": "checked dark bg"
+    },
+    {
+      "text": "line_clear_logic",
+      "passed": true,
+      "evidence": "checked line-clear"
+    }
+  ]
+}

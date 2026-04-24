@@ -1,0 +1,57 @@
+{
+  "pass_count": 10,
+  "total": 10,
+  "pass_rate": 1.0,
+  "expectations": [
+    {
+      "text": "game_html_present",
+      "passed": true,
+      "evidence": "len=14614"
+    },
+    {
+      "text": "catalog_entry_complete",
+      "passed": true,
+      "evidence": "all fields present, slug=flappy"
+    },
+    {
+      "text": "gamesdk_showad_preroll",
+      "passed": true,
+      "evidence": "checked preroll"
+    },
+    {
+      "text": "gamesdk_showad_interstitial",
+      "passed": true,
+      "evidence": "showAd count=2"
+    },
+    {
+      "text": "gamesdk_save_called",
+      "passed": true,
+      "evidence": "checked save"
+    },
+    {
+      "text": "onsaveloaded_implemented",
+      "passed": true,
+      "evidence": "checked function def"
+    },
+    {
+      "text": "requestanimationframe_loop",
+      "passed": true,
+      "evidence": "checked rAF"
+    },
+    {
+      "text": "gravity_physics",
+      "passed": true,
+      "evidence": "checked gravity"
+    },
+    {
+      "text": "pipe_scrolling",
+      "passed": true,
+      "evidence": "checked pipes"
+    },
+    {
+      "text": "dark_theme",
+      "passed": true,
+      "evidence": "checked dark bg"
+    }
+  ]
+}

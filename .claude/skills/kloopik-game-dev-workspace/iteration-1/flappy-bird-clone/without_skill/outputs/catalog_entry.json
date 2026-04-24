@@ -1,0 +1,12 @@
+{
+  "slug": "flappy",
+  "title": "Flappy Bird",
+  "category": "arcade",
+  "description": "Tap to flap and squeeze through the pipes. One tap, endless challenge — how far can you go?",
+  "emoji": "🐦",
+  "controls": "Tap, click, or Space bar to flap",
+  "new": true,
+  "featured": false,
+  "howToPlay": "<p>Tap the screen, click the mouse, or press the <strong>Space bar</strong> to make the bird flap its wings and rise. Release to let gravity pull it back down. Your goal is to fly through the gaps between the green pipes without touching them or the ground.</p><p>Each pair of pipes you clear scores one point. The bird moves forward automatically — all you control is the flapping. Short, rhythmic taps work better than holding down: let the bird settle into a natural arc and time each flap just as it starts to fall.</p><p>There are no levels or speed increases — the challenge stays constant, so your only enemy is your own nerves. Breathe, stay calm, and aim for the center of each gap.</p>",
+  "about": "<p>Flappy Bird was created by Vietnamese developer Dong Nguyen and released in 2013. Despite its simple one-button mechanic it became one of the most-downloaded mobile games ever made, notorious for its brutal difficulty curve and the instant retry loop that made it impossible to put down.</p><p>The version on kloopik is a faithful HTML5 recreation running entirely in your browser — same punishing physics, same satisfying pipe-clearing feel, no app store required.</p>"
+}
