@@ -144,13 +144,12 @@
       var progress = -rect.top / (sectionH - viewH);
       progress = Math.max(0, Math.min(1, progress));
       var idx = Math.min(Math.floor(progress * BEE_FRAME_COUNT), BEE_FRAME_COUNT - 1);
-      if (idx !== beeCurrentFrame) {
-        beeCurrentFrame = idx;
-        drawBeeFrame(idx);
-      }
+      beeCurrentFrame = idx;
+      drawBeeFrame(idx);
     }
 
     function preloadBeeFrames() {
+      updateBeeFrame(); // prime beeCurrentFrame before frames load
       for (var i = 0; i < BEE_FRAME_COUNT; i++) {
         (function (index) {
           var img = new Image();
